@@ -8,6 +8,16 @@ Built for [OpenAI Build Week](https://openai.devpost.com/) · Codex + GPT-5.6 ·
 
 **Live demo:** *deploy pending — replace with your Vercel URL*
 
+**Judge demo account** (after seeding): `demo@debrief.app` / `DemoBuildWeek2026!`  
+Workspace: **Launch Planning** (sample docs from `examples/launch-planning/`)
+
+```bash
+# with DB + OPENAI_API_KEY configured
+cd backend
+alembic upgrade head
+python scripts/seed_demo.py
+```
+
 **Debrief** turns scattered project documents, meeting notes, launch plans, and transcripts into a cited team-memory workspace. Upload files, generate a **decision brief**, then ask follow-up questions with streaming answers grounded in your sources.
 
 ## Why it matters
@@ -120,7 +130,8 @@ App: http://localhost:5173
 | `POST /api/auth/login` | Get JWT token |
 | `GET/POST /api/workspaces` | List/create workspaces |
 | `POST /api/workspaces/{id}/documents` | Upload file |
-| `POST /api/workspaces/{id}/summary` | Generate decision brief |
+| `POST /api/workspaces/{id}/summary` | Generate + **persist** decision brief |
+| `GET /api/workspaces/{id}/summary` | Load saved decision brief |
 | `GET /api/workspaces/{id}/suggested-questions` | Decision-focused prompts |
 | `POST /api/workspaces/{id}/chat/sessions/{sid}/messages` | Stream cited chat (SSE) |
 

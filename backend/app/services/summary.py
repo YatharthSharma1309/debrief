@@ -1,12 +1,13 @@
 import json
 import uuid
+from datetime import datetime, timezone
 
 from openai import AsyncOpenAI
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models import Document, DocumentStatus
+from app.models import Document, DocumentStatus, Workspace
 from app.prompts.summary import SUMMARY_QUERY, SUMMARY_SYSTEM_PROMPT, SUGGESTED_QUESTIONS_SYSTEM
 from app.rag.search import retrieve_relevant_chunks
 from app.schemas.summary import SuggestedQuestionsResponse, WorkspaceSummaryResponse
@@ -53,14 +54,35 @@ def _format_excerpts(chunks) -> str:
     return "\n\n".join(blocks)
 
 
+def _summary_from_payload(payload: dict, generated_at: datetime | None = None) -> WorkspaceSummaryResponse:
+    return WorkspaceSummaryResponse(
+        overview=payload.get("overview", ""),
+        key_decisions=payload.get("key_decisions", []),
+        open_questions=payload.get("open_questions", []),
+        risks=payload.get("risks", []),
+        important_dates=payload.get("important_dates", []),
+        action_items=payload.get("action_items", []),
+        suggested_questions=payload.get("suggested_questions", []),
+        generated_at=generated_at,
+    )
+
+
+async def get_workspace_summary(
+    db: AsyncSession, workspace: Workspace
+) -> WorkspaceSummaryResponse | None:
+    if not workspace.decision_brief:
+        return None
+    return _summary_from_payload(workspace.decision_brief, workspace.decision_brief_at)
+
+
 async def generate_workspace_summary(
-    db: AsyncSession, workspace_id: uuid.UUID
+    db: AsyncSession, workspace: Workspace
 ) -> WorkspaceSummaryResponse:
-    ready_count = await count_ready_documents(db, workspace_id)
+    ready_count = await count_ready_documents(db, workspace.id)
     if ready_count == 0:
         raise ValueError("Upload and process at least one document before generating a summary")
 
-    chunks = await _get_context_chunks(db, workspace_id)
+    chunks = await _get_context_chunks(db, workspace.id)
     excerpts = _format_excerpts(chunks)
 
     data = await _call_json_llm(
@@ -68,21 +90,25 @@ async def generate_workspace_summary(
         f"Document excerpts:\n\n{excerpts}",
     )
 
-    return WorkspaceSummaryResponse(
-        overview=data.get("overview", ""),
-        key_decisions=data.get("key_decisions", []),
-        open_questions=data.get("open_questions", []),
-        risks=data.get("risks", []),
-        important_dates=data.get("important_dates", []),
-        action_items=data.get("action_items", []),
-        suggested_questions=data.get("suggested_questions", []),
-    )
+    summary = _summary_from_payload(data)
+    now = datetime.now(timezone.utc)
+    workspace.decision_brief = summary.model_dump(mode="json", exclude={"generated_at"})
+    workspace.decision_brief_at = now
+    await db.commit()
+    await db.refresh(workspace)
+
+    return _summary_from_payload(workspace.decision_brief, workspace.decision_brief_at)
 
 
 async def generate_suggested_questions(
-    db: AsyncSession, workspace_id: uuid.UUID, *, use_ai: bool = False
+    db: AsyncSession, workspace: Workspace, *, use_ai: bool = True
 ) -> SuggestedQuestionsResponse:
-    ready_count = await count_ready_documents(db, workspace_id)
+    if workspace.decision_brief:
+        questions = workspace.decision_brief.get("suggested_questions") or []
+        if questions:
+            return SuggestedQuestionsResponse(questions=questions[:4])
+
+    ready_count = await count_ready_documents(db, workspace.id)
     if ready_count == 0:
         return SuggestedQuestionsResponse(
             questions=[
@@ -93,36 +119,31 @@ async def generate_suggested_questions(
             ]
         )
 
-    if not use_ai:
-        result = await db.execute(
-            select(Document.filename)
-            .where(Document.workspace_id == workspace_id, Document.status == DocumentStatus.ready)
-            .limit(3)
-        )
-        filenames = [row[0] for row in result.all()]
-        primary = filenames[0] if filenames else "my documents"
-        return SuggestedQuestionsResponse(
-            questions=[
-                f"What decisions are documented in {primary}?",
-                "What action items or deadlines are mentioned?",
-                "What risks or contradictions are identified?",
-                "What is still unresolved across this workspace?",
-            ]
-        )
-
-    chunks = await _get_context_chunks(db, workspace_id, top_k=8)
-    excerpts = _format_excerpts(chunks)
-
-    data = await _call_json_llm(
-        SUGGESTED_QUESTIONS_SYSTEM,
-        f"Document excerpts:\n\n{excerpts}\n\nReturn JSON: {{\"questions\": [\"...\", \"...\", \"...\", \"...\"]}}",
+    fallback = SuggestedQuestionsResponse(
+        questions=[
+            "What decisions have already been made?",
+            "What did we decide about pricing and why?",
+            "Who owns launch readiness?",
+            "What is still unresolved before launch?",
+        ]
     )
 
-    if isinstance(data, dict) and "questions" in data:
-        questions = data["questions"]
-    elif isinstance(data, list):
-        questions = data
-    else:
-        questions = []
+    if not use_ai or not settings.openai_api_key:
+        return fallback
 
-    return SuggestedQuestionsResponse(questions=questions[:4])
+    try:
+        chunks = await _get_context_chunks(db, workspace.id, top_k=8)
+        excerpts = _format_excerpts(chunks)
+        data = await _call_json_llm(
+            SUGGESTED_QUESTIONS_SYSTEM,
+            f"Document excerpts:\n\n{excerpts}\n\nReturn JSON: {{\"questions\": [\"...\", \"...\", \"...\", \"...\"]}}",
+        )
+        if isinstance(data, dict) and "questions" in data:
+            questions = data["questions"]
+        elif isinstance(data, list):
+            questions = data
+        else:
+            questions = []
+        return SuggestedQuestionsResponse(questions=(questions or fallback.questions)[:4])
+    except Exception:
+        return fallback

@@ -29,6 +29,7 @@ export default function WorkspacePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
 
   function startEditing() {
     if (!workspace) return
@@ -126,7 +127,11 @@ export default function WorkspacePage() {
                   </button>
                 </div>
 
-                <WorkspaceSummaryCard workspaceId={workspaceId!} hasReadyDocs={hasReadyDocs} />
+                <WorkspaceSummaryCard
+                  workspaceId={workspaceId!}
+                  hasReadyDocs={hasReadyDocs}
+                  onAskQuestion={setPendingQuestion}
+                />
 
                 <section className="mt-8 grid gap-8 lg:grid-cols-2">
                   <div className="space-y-6">
@@ -137,7 +142,7 @@ export default function WorkspacePage() {
                         Documents
                       </h2>
                       <div className="mt-4">
-                        {docsLoading && <LoadingSpinner label="Loading documents..." />}
+                        {docsLoading && <LoadingSpinner label="Loading documents…" />}
                         {docsError && (
                           <p className="text-sm text-red-600">
                             {docsError instanceof Error ? docsError.message : 'Failed to load documents'}
@@ -155,7 +160,12 @@ export default function WorkspacePage() {
                   </div>
 
                   <div>
-                    <ChatPanel workspaceId={workspaceId!} hasReadyDocs={hasReadyDocs} />
+                    <ChatPanel
+                      workspaceId={workspaceId!}
+                      hasReadyDocs={hasReadyDocs}
+                      pendingQuestion={pendingQuestion}
+                      onQuestionConsumed={() => setPendingQuestion(null)}
+                    />
                   </div>
                 </section>
               </>

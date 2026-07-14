@@ -10,13 +10,27 @@ from app.services import summary as summary_service
 router = APIRouter(prefix="/workspaces/{workspace_id}")
 
 
+@router.get("/summary", response_model=WorkspaceSummaryResponse)
+async def get_workspace_summary(
+    workspace: Workspace = Depends(get_owned_workspace),
+    db: AsyncSession = Depends(get_db),
+):
+    summary = await summary_service.get_workspace_summary(db, workspace)
+    if summary is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No decision brief yet. Generate one first.",
+        )
+    return summary
+
+
 @router.post("/summary", response_model=WorkspaceSummaryResponse)
 async def create_workspace_summary(
     workspace: Workspace = Depends(get_owned_workspace),
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        return await summary_service.generate_workspace_summary(db, workspace.id)
+        return await summary_service.generate_workspace_summary(db, workspace)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -26,4 +40,4 @@ async def get_suggested_questions(
     workspace: Workspace = Depends(get_owned_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    return await summary_service.generate_suggested_questions(db, workspace.id)
+    return await summary_service.generate_suggested_questions(db, workspace, use_ai=True)

@@ -13,9 +13,16 @@ import { useSuggestedQuestions } from '../hooks/useSummary'
 interface ChatPanelProps {
   workspaceId: string
   hasReadyDocs?: boolean
+  pendingQuestion?: string | null
+  onQuestionConsumed?: () => void
 }
 
-export default function ChatPanel({ workspaceId, hasReadyDocs = false }: ChatPanelProps) {
+export default function ChatPanel({
+  workspaceId,
+  hasReadyDocs = false,
+  pendingQuestion = null,
+  onQuestionConsumed,
+}: ChatPanelProps) {
   const { data: sessions, isLoading: sessionsLoading } = useChatSessions(workspaceId)
   const createSession = useCreateChatSession(workspaceId)
   const { data: suggested } = useSuggestedQuestions(workspaceId, hasReadyDocs)
@@ -40,11 +47,6 @@ export default function ChatPanel({ workspaceId, hasReadyDocs = false }: ChatPan
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streamingContent])
 
-  async function handleNewChat() {
-    const session = await createSession.mutateAsync()
-    setActiveSessionId(session.id)
-  }
-
   async function handleSuggestedQuestion(question: string) {
     let sid = activeSessionId
     if (!sid) {
@@ -53,6 +55,20 @@ export default function ChatPanel({ workspaceId, hasReadyDocs = false }: ChatPan
       setActiveSessionId(session.id)
     }
     await sendMessage(question, sid)
+  }
+
+  useEffect(() => {
+    if (!pendingQuestion || isStreaming) return
+    void (async () => {
+      await handleSuggestedQuestion(pendingQuestion)
+      onQuestionConsumed?.()
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingQuestion])
+
+  async function handleNewChat() {
+    const session = await createSession.mutateAsync()
+    setActiveSessionId(session.id)
   }
 
   return (
@@ -88,7 +104,7 @@ export default function ChatPanel({ workspaceId, hasReadyDocs = false }: ChatPan
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto bg-surface-muted/50 p-4">
-        {sessionsLoading && <LoadingSpinner label="Loading chat..." />}
+        {sessionsLoading && <LoadingSpinner label="Loading chat…" />}
 
         {!sessionsLoading && !activeSessionId && (
           <div className="flex h-full flex-col items-center justify-center text-center">
@@ -103,9 +119,7 @@ export default function ChatPanel({ workspaceId, hasReadyDocs = false }: ChatPan
           </div>
         )}
 
-        {activeSessionId && messagesLoading && (
-          <LoadingSpinner label="Loading messages..." />
-        )}
+        {activeSessionId && messagesLoading && <LoadingSpinner label="Loading messages…" />}
 
         {messages?.map((message) => (
           <ChatMessageBubble
@@ -149,7 +163,7 @@ export default function ChatPanel({ workspaceId, hasReadyDocs = false }: ChatPan
         onSend={sendMessage}
         disabled={!activeSessionId || isStreaming}
         placeholder={
-          activeSessionId ? 'Ask about decisions, risks, or next actions...' : 'Create a chat to begin'
+          activeSessionId ? 'Ask about decisions, risks, or next actions…' : 'Create a chat to begin'
         }
       />
     </div>

@@ -26,6 +26,14 @@ Password: `DemoBuildWeek2026!`
 
 Suggested pre-seeded workspace: **Launch Planning** using files from `examples/launch-planning`.
 
+Seed locally or on the deployed backend:
+
+```bash
+cd backend
+alembic upgrade head
+python scripts/seed_demo.py
+```
+
 ## Video Demo
 
 **URL:** `https://youtube.com/...` or Loom link under 3 minutes.

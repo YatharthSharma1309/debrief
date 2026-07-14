@@ -1,37 +1,41 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --color-brand-50: #f0f7ff;
-  --color-brand-100: #e0effe;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-500: #059669;
+  --color-brand-600: #047857;
+  --color-brand-700: #065f46;
   --color-surface: #ffffff;
-  --color-surface-muted: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-surface-muted: #f4f7f5;
+  --color-border: #d8e2dc;
+  --color-text: #14211b;
+  --color-text-muted: #5b6b63;
 }
 
 .dark {
-  --color-brand-50: #172554;
-  --color-brand-100: #1e3a8a;
-  --color-brand-500: #60a5fa;
-  --color-brand-600: #3b82f6;
-  --color-brand-700: #93c5fd;
-  --color-surface: #0f172a;
-  --color-surface-muted: #020617;
-  --color-border: #334155;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
+  --color-brand-50: #052e1c;
+  --color-brand-100: #064e3b;
+  --color-brand-500: #34d399;
+  --color-brand-600: #10b981;
+  --color-brand-700: #6ee7b7;
+  --color-surface: #0c1612;
+  --color-surface-muted: #08110d;
+  --color-border: #24352d;
+  --color-text: #e8f0eb;
+  --color-text-muted: #9aafa3;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-sans);
-  background-color: var(--color-surface-muted);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in oklab, var(--color-brand-100) 55%, transparent), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 0%, color-mix(in oklab, var(--color-brand-50) 80%, transparent), transparent),
+    var(--color-surface-muted);
   color: var(--color-text);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -39,4 +43,8 @@ body {
 ::selection {
   background-color: var(--color-brand-100);
   color: var(--color-text);
+}
+
+.font-display {
+  font-family: var(--font-display);
 }

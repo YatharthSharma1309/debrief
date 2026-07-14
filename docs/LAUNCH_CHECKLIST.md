@@ -11,6 +11,7 @@ docker compose up -d
 cd backend
 .venv\Scripts\activate
 alembic upgrade head
+python scripts/seed_demo.py
 uvicorn app.main:app --reload
 ```
 
@@ -21,7 +22,15 @@ cd frontend
 npm run dev
 ```
 
-Test flow:
+Fast judge path:
+
+- [ ] Sign in as `demo@debrief.app` / `DemoBuildWeek2026!`
+- [ ] Open **Launch Planning**
+- [ ] Confirm Decision Brief loads (or click **Generate brief**)
+- [ ] Click a suggested question from the brief → cited streaming answer
+- [ ] Refresh page → brief still present
+
+Manual path (optional):
 
 - [ ] Register a new account
 - [ ] Create workspace **Launch Planning**
@@ -32,7 +41,7 @@ Test flow:
 - [ ] Ask: `What did we decide about pricing and why?`
 - [ ] Ask: `What is still unresolved before launch?`
 - [ ] Verify streaming answers, citations, excerpts, and relevance scores
-- [ ] Refresh page and confirm chat history persists
+- [ ] Refresh page and confirm chat history + brief persist
 - [ ] Toggle dark mode
 - [ ] Delete a document and confirm it disappears
 

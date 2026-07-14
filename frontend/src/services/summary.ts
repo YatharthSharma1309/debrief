@@ -8,6 +8,14 @@ export interface WorkspaceSummary {
   important_dates: string[]
   action_items: string[]
   suggested_questions: string[]
+  generated_at?: string | null
+}
+
+export function getWorkspaceSummary(
+  token: string,
+  workspaceId: string,
+): Promise<WorkspaceSummary> {
+  return apiRequest(`/workspaces/${workspaceId}/summary`, { method: 'GET' }, token)
 }
 
 export function generateWorkspaceSummary(

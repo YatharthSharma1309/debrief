@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -9,6 +11,7 @@ class WorkspaceSummaryResponse(BaseModel):
     important_dates: list[str] = Field(default_factory=list)
     action_items: list[str] = Field(default_factory=list)
     suggested_questions: list[str] = Field(default_factory=list)
+    generated_at: datetime | None = None
 
 
 class SuggestedQuestionsResponse(BaseModel):
