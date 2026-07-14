@@ -1,63 +1,71 @@
-# ContextAI Planning Notes
+# Debrief Planning Notes
 
-## Vector database decision
+## Product Direction
 
-**Chosen: PostgreSQL + pgvector**
+Debrief is positioned as a Work & Productivity tool for fast-moving teams. The wedge is not generic document chat; it is recovering decisions, rationale, owners, risks, and unresolved questions from scattered project context.
 
-Rationale documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
+## MVP Checklist
 
-## MVP feature checklist
+- [x] User authentication
+- [x] Workspace creation
+- [x] File upload for PDF, DOCX, TXT
+- [x] Document parsing and chunking
+- [x] OpenAI embedding generation
+- [x] pgvector search
+- [x] Streaming chat with citations
+- [x] Chat history
+- [x] Decision brief schema
+- [x] Decision-focused prompts
+- [x] Dark mode
+- [ ] Live deployment
+- [ ] Screenshots
+- [ ] Demo video
 
-### Core (required)
+## Demo Focus
 
-- [ ] User authentication (register, login, JWT)
-- [ ] Workspace creation
-- [ ] File upload (PDF, DOCX, TXT)
-- [ ] Document parsing & chunking
-- [ ] Embedding generation (OpenAI)
-- [ ] Vector search (pgvector)
-- [ ] AI chat with citations
-- [ ] Streaming responses (SSE)
-- [ ] Chat history persistence
+Workspace: **Launch Planning**
 
-### Nice-to-have
+Questions:
 
-- [ ] Multiple workspaces UI
-- [ ] Share workspace
-- [ ] AI-generated summaries
-- [ ] Upload timeline
-- [ ] Global search
-- [ ] Export answers
-- [ ] Dark mode
+- What decisions have already been made?
+- What did we decide about pricing and why?
+- Who owns launch readiness?
+- What is still unresolved before launch?
+- Are there conflicting dates or risks?
 
-## OpenAI API key setup
+## OpenAI Setup
 
-1. Go to https://platform.openai.com/api-keys
-2. Create a new secret key
-3. Copy into `backend/.env` as `OPENAI_API_KEY`
-4. Never commit `.env` to git
+1. Create an API key at https://platform.openai.com/api-keys
+2. Put it in `backend/.env` as `OPENAI_API_KEY`
+3. Confirm `OPENAI_CHAT_MODEL` is available to the account
+4. Never commit `.env`
 
-## GitHub milestones
+## Milestones
 
-### Milestone 1 — Foundation
-- Project setup
-- Authentication
+### Foundation
+
+- Auth
 - Database schema
+- Workspaces
 
-### Milestone 2 — Documents
-- File upload
-- Document parsing
+### Documents
+
+- Uploads
+- Parsing
+- Chunking
 - Embeddings
 
-### Milestone 3 — Chat
-- RAG pipeline
-- Streaming chat
+### Intelligence
 
-### Milestone 4 — Polish
-- UI refinement
+- Decision brief
+- Suggested questions
+- Cited streaming chat
+
+### Launch
+
 - Deployment
-
-### Milestone 5 — Launch
 - README polish
+- Sample dataset
+- Screenshots
 - Demo video
-- Hackathon submission
+- Devpost submission

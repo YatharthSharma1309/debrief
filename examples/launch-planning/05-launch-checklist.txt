@@ -1,0 +1,20 @@
+# Launch Checklist
+
+Launch owner: Sofia
+Launch date: August 19, 2026
+
+Required before launch:
+- Pricing page finalized
+- Checkout tested
+- Demo workspace created
+- Customer announcement email approved
+- Help docs reviewed
+- Final launch approval from Maya
+
+Blocked items:
+- Pricing page copy not final
+- Customer announcement email needs review
+- Help docs need screenshots
+
+Note:
+This checklist lists August 19, but the launch meeting transcript lists August 12. The team needs to confirm the final launch date before announcing publicly.

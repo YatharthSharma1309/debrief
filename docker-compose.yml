@@ -1,0 +1,15 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: contextai-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: contextai
+    ports:
+      - "5432:5432"
+    volumes:
+      - contextai_pgdata:/var/lib/postgresql/data
+
+volumes:
+  contextai_pgdata:

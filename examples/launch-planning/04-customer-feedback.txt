@@ -1,0 +1,18 @@
+# Customer Feedback Summary
+
+Feedback window: July 1-11, 2026
+
+Top themes:
+- Small teams liked the fast workspace setup.
+- Users asked for clearer pricing before inviting teammates.
+- Several beta customers wanted examples of launch checklists.
+- Two larger customers asked about SSO and invoice billing.
+
+Decision signal:
+Self-serve Pro is a better launch fit than enterprise sales because most interested beta users are teams with fewer than 20 people.
+
+Risk:
+The product may look too lightweight for enterprise buyers until admin controls and SSO are ready.
+
+Open question:
+Should marketing mention enterprise features as "coming soon" or avoid them completely during launch?

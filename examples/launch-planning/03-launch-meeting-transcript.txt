@@ -1,0 +1,26 @@
+# Launch Meeting Transcript
+
+Date: July 10, 2026
+
+Maya:
+We are still targeting August 12 for the public launch. The launch readiness owner is Sofia.
+
+Sofia:
+I can own the launch checklist, but I need final pricing copy from Arjun by July 24.
+
+Arjun:
+Pricing is set at $29 per user per month for Pro. I will prepare the copy and checkout QA plan.
+
+Lena:
+Customer feedback is strong, but we should be careful about promising enterprise features. SSO is not ready.
+
+Decision:
+Launch with self-serve Pro first. Do not announce enterprise support in the initial public launch.
+
+Action items:
+- Arjun: pricing copy and checkout QA by July 24
+- Sofia: launch checklist and release coordination
+- Maya: final launch approval
+
+Risk:
+If SSO appears in marketing copy, customers may assume enterprise readiness before it exists.

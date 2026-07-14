@@ -1,0 +1,20 @@
+# Product Requirements - Atlas Launch
+
+Project: Atlas self-serve launch
+Owner: Maya Patel
+Target users: small product teams that need a lightweight planning workspace.
+
+Key requirements:
+- Launch a self-serve Pro plan for beta customers.
+- Keep onboarding under 10 minutes.
+- Include import support for meeting notes and project documents.
+- Provide a launch checklist before public announcement.
+
+Decision:
+The team agreed to prioritize self-serve onboarding before enterprise admin controls. The rationale was that beta users are mostly small teams and founders who need speed more than procurement workflows.
+
+Open question:
+Enterprise SSO remains unresolved and should not block the first public launch.
+
+Risk:
+If onboarding takes longer than 10 minutes, the launch may miss the activation target.

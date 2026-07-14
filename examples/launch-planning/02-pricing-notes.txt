@@ -1,0 +1,21 @@
+# Pricing Notes - Atlas Launch
+
+Meeting date: July 9, 2026
+Participants: Maya, Arjun, Lena, Sofia
+
+Pricing decision:
+The team decided to launch the Pro plan at $29 per user per month.
+
+Rationale:
+- Sales-led pricing created too much friction for beta users.
+- The $29 price is low enough for small teams to try without procurement.
+- Annual discounts will be deferred until after the first launch cycle.
+
+Owner:
+Arjun owns the pricing page copy and checkout test.
+
+Risk:
+Enterprise packaging is still undefined. Lena noted that larger customers may ask for SSO, admin roles, and invoice billing.
+
+Open question:
+Should the free plan include 3 projects or 5 projects?

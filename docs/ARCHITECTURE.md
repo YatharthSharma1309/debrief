@@ -1,91 +1,88 @@
-# ContextAI Architecture
+# Debrief Architecture
 
 ## Overview
 
-ContextAI is a RAG-powered document workspace. Users upload documents into workspaces, and the system chunks, embeds, and indexes content in PostgreSQL using pgvector. Chat queries retrieve relevant chunks and stream cited answers via the OpenAI API.
+Debrief is a RAG-powered team-memory workspace. Users upload project documents, notes, and transcripts into workspaces. The backend parses, chunks, embeds, and indexes content in PostgreSQL with pgvector. Decision briefs and chat queries retrieve relevant chunks and use the OpenAI API to produce cited decisions, risks, open questions, and follow-up answers.
 
 ## Why PostgreSQL + pgvector?
 
-We chose **PostgreSQL + pgvector** over dedicated vector databases (ChromaDB, Qdrant) because:
+We use PostgreSQL + pgvector because:
 
-- **Single database** — Users, workspaces, documents, chunks, and embeddings live in one system
-- **Production-ready** — Battle-tested at scale; easy to deploy on Supabase, Neon, or Railway
-- **Transactional consistency** — Document metadata and vectors stay in sync
-- **Familiar ops** — Standard SQL, migrations (Alembic), backups, and monitoring
+- Users, workspaces, documents, chunks, chat history, and embeddings live in one database
+- It is straightforward to deploy on Supabase, Railway, Render, or similar platforms
+- Document metadata and vectors stay transactionally consistent
+- Standard SQL, Alembic migrations, backups, and monitoring are familiar
 
-## System components
+## Components
 
-### Frontend (`frontend/`)
+### Frontend
 
 | Directory | Purpose |
 |-----------|---------|
 | `components/` | Reusable UI components |
 | `pages/` | Route-level page components |
-| `hooks/` | Custom React hooks (TanStack Query wrappers) |
+| `hooks/` | TanStack Query wrappers |
 | `services/` | API client functions |
 | `stores/` | Zustand global state |
 
-### Backend (`backend/app/`)
+### Backend
 
 | Directory | Purpose |
 |-----------|---------|
 | `api/` | FastAPI route handlers |
 | `models/` | SQLAlchemy ORM models |
-| `services/` | Business logic (auth, workspaces, documents) |
-| `rag/` | Retrieval-augmented generation pipeline |
+| `schemas/` | Pydantic request/response schemas |
+| `services/` | Auth, workspaces, documents, chat, summaries |
+| `rag/` | Retrieval pipeline |
 | `embeddings/` | OpenAI embedding generation |
-| `prompts/` | System and user prompt templates |
+| `prompts/` | Decision brief and RAG prompts |
 
-## Data flow
+## Data Flow
 
-### Document ingestion
+### Document Ingestion
 
-1. User uploads file via REST API
-2. Backend parses document (PDF, DOCX, TXT, etc.)
-3. Text is chunked with overlap
-4. Chunks are embedded via OpenAI Embeddings API
-5. Vectors stored in `document_chunks` table (pgvector column)
-6. Metadata stored alongside chunks for citation
+1. User uploads a PDF, DOCX, or TXT file
+2. Backend validates and stores the file
+3. Parser extracts text
+4. Chunker splits text with overlap
+5. OpenAI embeddings are generated
+6. Chunks and embeddings are stored in `document_chunks`
+7. Document status changes to `ready`
 
-### Chat / RAG query
+### Decision Brief
 
-1. User sends message in workspace chat
+1. User clicks **Generate brief**
+2. Backend retrieves representative chunks from the workspace
+3. GPT-5.6 returns structured JSON:
+   - overview
+   - key decisions
+   - open questions
+   - risks
+   - important dates
+   - action items
+   - suggested questions
+4. Frontend renders the brief as a decision workspace summary
+
+### Cited Chat
+
+1. User asks a question
 2. Query is embedded
-3. pgvector similarity search retrieves top-k chunks
-4. Chunks injected into prompt context
-5. OpenAI chat completion streams response
-6. Citations reference source document + chunk
-
-## Planned database schema (Phase 2)
-
-```text
-users
-  └── workspaces
-        ├── documents
-        │     └── document_chunks (embedding vector)
-        └── chat_sessions
-              └── chat_messages
-```
-
-## API design
-
-- `POST /api/auth/register` — Create account
-- `POST /api/auth/login` — JWT token
-- `GET/POST /api/workspaces` — List/create workspaces
-- `POST /api/workspaces/{id}/documents` — Upload document
-- `POST /api/workspaces/{id}/chat` — Stream chat (SSE)
+3. pgvector retrieves the most relevant chunks
+4. GPT-5.6 streams an answer using only retrieved context
+5. Response includes citations with source document, excerpt, page when available, and relevance score
 
 ## Security
 
 - JWT bearer authentication
-- Workspace-level authorization (users only access their workspaces)
-- File type validation and size limits
-- API keys stored in environment variables only
+- Workspace-level authorization
+- File type validation
+- Upload size limits
+- Environment-only API keys and secrets
 
-## Deployment target
+## Deployment
 
 | Service | Platform |
 |---------|----------|
 | Frontend | Vercel |
 | Backend | Railway or Render |
-| Database | Supabase PostgreSQL (pgvector enabled) |
+| Database | Supabase PostgreSQL + pgvector |
