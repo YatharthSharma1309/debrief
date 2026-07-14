@@ -2,11 +2,11 @@ import json
 import uuid
 from collections.abc import AsyncIterator
 
-from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.llm.client import get_llm_api_key, get_llm_client
 from app.models import ChatMessage, ChatSession, MessageRole, User, Workspace
 from app.prompts.rag import build_rag_system_prompt
 from app.rag.retrieval import RetrievedChunk
@@ -81,8 +81,8 @@ async def stream_chat_response(
     session: ChatSession,
     user_content: str,
 ) -> AsyncIterator[str]:
-    if not settings.openai_api_key:
-        yield _sse({"type": "error", "message": "OPENAI_API_KEY is not configured"})
+    if not get_llm_api_key():
+        yield _sse({"type": "error", "message": "OPENROUTER_API_KEY is not configured"})
         return
 
     chunks = await retrieve_relevant_chunks(
@@ -119,9 +119,9 @@ async def stream_chat_response(
 
     full_content = ""
     try:
-        client = AsyncOpenAI(api_key=settings.openai_api_key)
+        client = get_llm_client()
         stream = await client.chat.completions.create(
-            model=settings.openai_chat_model,
+            model=settings.llm_chat_model,
             messages=messages,
             stream=True,
             temperature=0.2,

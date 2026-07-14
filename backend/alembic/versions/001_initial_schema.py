@@ -46,8 +46,12 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_workspaces_user_id"), "workspaces", ["user_id"], unique=False)
 
-    document_status = sa.Enum("pending", "processing", "ready", "failed", name="document_status")
-    document_status.create(op.get_bind(), checkfirst=True)
+    document_status = postgresql.ENUM(
+        "pending", "processing", "ready", "failed", name="document_status", create_type=False
+    )
+    sa.Enum("pending", "processing", "ready", "failed", name="document_status").create(
+        op.get_bind(), checkfirst=True
+    )
 
     op.create_table(
         "documents",
@@ -74,7 +78,7 @@ def upgrade() -> None:
         sa.Column("chunk_index", sa.Integer(), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("page_number", sa.Integer(), nullable=True),
-        sa.Column("embedding", Vector(1536), nullable=True),
+        sa.Column("embedding", Vector(2048), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.ForeignKeyConstraint(["document_id"], ["documents.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["workspace_id"], ["workspaces.id"], ondelete="CASCADE"),
@@ -83,8 +87,8 @@ def upgrade() -> None:
     op.create_index(op.f("ix_document_chunks_document_id"), "document_chunks", ["document_id"], unique=False)
     op.create_index(op.f("ix_document_chunks_workspace_id"), "document_chunks", ["workspace_id"], unique=False)
 
-    message_role = sa.Enum("user", "assistant", "system", name="message_role")
-    message_role.create(op.get_bind(), checkfirst=True)
+    message_role = postgresql.ENUM("user", "assistant", "system", name="message_role", create_type=False)
+    sa.Enum("user", "assistant", "system", name="message_role").create(op.get_bind(), checkfirst=True)
 
     op.create_table(
         "chat_sessions",

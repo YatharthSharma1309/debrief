@@ -33,11 +33,11 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="text-xs text-text-muted">
-            Build Week judges:{' '}
+            Demo account:{' '}
             <span className="font-medium text-text">demo@debrief.app</span> /{' '}
             <span className="font-medium text-text">DemoBuildWeek2026!</span>
             <br />
-            Run <code className="rounded bg-surface px-1 py-0.5">python scripts/seed_demo.py</code> after DB is up.
+            Workspace <span className="font-medium text-text">Launch Planning</span> is pre-seeded.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function HomePage() {
       </div>
 
       <footer className="border-t border-border py-6 text-center text-xs text-text-muted">
-        Built for OpenAI Build Week · GPT-5.6 · Codex · Work & Productivity
+        Built with Codex for OpenAI Build Week · Runtime: OpenRouter free models · Work & Productivity
       </footer>
     </div>
   )

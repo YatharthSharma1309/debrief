@@ -40,7 +40,7 @@ Avoid OCR, sharing, exports, global search, and complex permissions for this sub
 
 ## Blocking Fixes
 
-- [ ] Confirm production `OPENAI_CHAT_MODEL` works with your account
+- [ ] Confirm production `LLM_CHAT_MODEL` works (default `openrouter/free`)
 - [ ] Run backend with `DEBUG=false` or supported production values
 - [ ] Verify upload cleanup handles failed/oversized files
 - [ ] Run local E2E with Postgres + pgvector

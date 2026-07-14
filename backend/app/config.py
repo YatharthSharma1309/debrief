@@ -11,9 +11,16 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/contextai"
 
+    # Prefer OpenRouter (OpenAI-compatible). OPENAI_API_KEY remains a fallback alias.
+    openrouter_api_key: str = ""
     openai_api_key: str = ""
-    openai_embedding_model: str = "text-embedding-3-small"
-    openai_chat_model: str = "gpt-5.6-terra"
+    llm_base_url: str = "https://openrouter.ai/api/v1"
+    llm_chat_model: str = "openrouter/free"
+    llm_embedding_model: str = "nvidia/llama-nemotron-embed-vl-1b-v2:free"
+    embedding_dimensions: int = 2048
+    # Legacy env aliases (optional overrides)
+    openai_embedding_model: str | None = None
+    openai_chat_model: str | None = None
 
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
@@ -29,7 +36,7 @@ class Settings(BaseSettings):
     allowed_file_types: list[str] = ["pdf", "docx", "txt"]
 
     rag_top_k: int = 5
-    rag_min_score: float = 0.3
+    rag_min_score: float = 0.15
     chat_history_limit: int = 10
 
     @field_validator("debug", mode="before")
@@ -46,12 +53,24 @@ class Settings(BaseSettings):
             value = value.replace("postgres://", "postgresql+asyncpg://", 1)
         elif value.startswith("postgresql://") and "+asyncpg" not in value:
             value = value.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # asyncpg rejects libpq sslmode; Neon/pooler URLs often ship it
+        value = value.replace("sslmode=require", "ssl=require")
+        value = value.replace("channel_binding=require&", "").replace("&channel_binding=require", "")
+        value = value.replace("?channel_binding=require", "")
         return value
 
     @model_validator(mode="after")
     def append_frontend_cors(self):
         if self.frontend_url and self.frontend_url not in self.cors_origins:
             self.cors_origins = [*self.cors_origins, self.frontend_url]
+        return self
+
+    @model_validator(mode="after")
+    def apply_legacy_model_aliases(self):
+        if self.openai_chat_model:
+            self.llm_chat_model = self.openai_chat_model
+        if self.openai_embedding_model:
+            self.llm_embedding_model = self.openai_embedding_model
         return self
 
 

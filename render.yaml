@@ -8,8 +8,12 @@ services:
     envVars:
       - key: DATABASE_URL
         sync: false
-      - key: OPENAI_API_KEY
+      - key: OPENROUTER_API_KEY
         sync: false
+      - key: LLM_CHAT_MODEL
+        value: openrouter/free
+      - key: LLM_EMBEDDING_MODEL
+        value: nvidia/llama-nemotron-embed-vl-1b-v2:free
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: FRONTEND_URL

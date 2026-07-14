@@ -33,7 +33,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-text">Sign in</h1>
         <p className="mt-2 text-sm text-text-muted">Welcome back to Debrief</p>
         <p className="mt-1 text-xs text-text-muted">
-          Judges: demo@debrief.app / DemoBuildWeek2026!
+          Demo: demo@debrief.app / DemoBuildWeek2026!
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">

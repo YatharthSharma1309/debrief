@@ -2,17 +2,20 @@
 
 > Recover decisions buried in scattered team docs.
 
-Built for [OpenAI Build Week](https://openai.devpost.com/) · Codex + GPT-5.6 · Work & Productivity
+Built with [Codex](https://openai.com/codex/) for [OpenAI Build Week](https://openai.devpost.com/) · Runtime powered by **OpenRouter free models** · Work & Productivity
 
 **Repo:** [github.com/YatharthSharma1309/debrief](https://github.com/YatharthSharma1309/debrief)
 
-**Live demo:** *deploy pending — replace with your Vercel URL*
+**Live demo:** [https://debrief-psi.vercel.app](https://debrief-psi.vercel.app)  
+**API:** [https://debrief-api-production.up.railway.app](https://debrief-api-production.up.railway.app)  
+*(Frontend: Vercel · Backend: Railway · DB: Neon · AI: OpenRouter free models)*
 
-**Judge demo account** (after seeding): `demo@debrief.app` / `DemoBuildWeek2026!`  
-Workspace: **Launch Planning** (sample docs from `examples/launch-planning/`)
+**Demo account:** `demo@debrief.app` / `DemoBuildWeek2026!`  
+Workspace: **Launch Planning** (sample docs from `examples/launch-planning/`)  
+Full access notes: [docs/CREDENTIALS.md](docs/CREDENTIALS.md)
 
 ```bash
-# with DB + OPENAI_API_KEY configured
+# with DB + OPENROUTER_API_KEY configured (https://openrouter.ai/keys)
 cd backend
 alembic upgrade head
 python scripts/seed_demo.py
@@ -48,7 +51,7 @@ Debrief helps fast-moving teams answer:
 
 Use the included sample project context in [`examples/launch-planning`](examples/launch-planning):
 
-1. Create a workspace named **Launch Planning**
+1. Create a workspace named **Launch Planning** (or use the seeded demo account)
 2. Upload all files from `examples/launch-planning/`
 3. Click **Generate brief**
 4. Ask: **What did we decide about pricing and why?**
@@ -69,8 +72,8 @@ flowchart TB
     Docs --> PG[(PostgreSQL + pgvector)]
     RAG --> PG
     Brief --> PG
-    RAG --> OAI[OpenAI API]
-    Brief --> OAI
+    RAG --> OR[OpenRouter free models]
+    Brief --> OR
 ```
 
 More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/ARCHITECTURE_DIAGRAM.md](docs/ARCHITECTURE_DIAGRAM.md)
@@ -81,21 +84,23 @@ More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/ARCHITECTURE_
 |-------|------------|
 | Frontend | React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
 | Backend | FastAPI, Python, SQLAlchemy, Alembic |
-| Database | PostgreSQL + pgvector |
-| AI | GPT-5.6 (`gpt-5.6-terra`) + `text-embedding-3-small` |
-| Deployment | Vercel · Railway/Render · Supabase |
+| Database | PostgreSQL + pgvector (Neon in cloud) |
+| AI | OpenRouter — chat `openrouter/free`, embeddings `nvidia/llama-nemotron-embed-vl-1b-v2:free` (2048-d) |
+| Deployment | Vercel · Railway/Render · Neon |
 
 ## Quick start
 
 ### Prerequisites
 
-- Node.js 20+, Python 3.11+, Docker Desktop, OpenAI API key
+- Node.js 20+, Python 3.11+, Docker Desktop (or Neon), [OpenRouter API key](https://openrouter.ai/keys) (free)
 
 ### 1. Database
 
 ```bash
 docker compose up -d
 ```
+
+Or use Neon Postgres with `pgvector` enabled and set `DATABASE_URL`.
 
 ### 2. Backend
 
@@ -105,7 +110,7 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 copy .env.example .env
-# set OPENAI_API_KEY (and optionally OPENAI_CHAT_MODEL=gpt-5.6-terra)
+# set OPENROUTER_API_KEY (defaults already use free OpenRouter models)
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
@@ -139,17 +144,17 @@ App: http://localhost:5173
 
 **Track:** Work & Productivity
 
-**Positioning:** Memory infrastructure for fast-moving teams — cited decisions, risks, action items, and follow-up answers powered by GPT-5.6 and built with Codex.
+**Positioning:** Memory infrastructure for fast-moving teams — cited decisions, risks, action items, and follow-up answers. Built with Codex; inference runs on OpenRouter free models so demos stay $0 to operate.
 
 ### Built with Codex
 
-Codex (via Cursor) accelerated FastAPI scaffolding, pgvector retrieval, SSE streaming, schema design, deployment config, and packaging. Product direction focuses on trust: every answer stays grounded in workspace sources and shows where it came from.
+Codex (via Cursor) accelerated FastAPI scaffolding, pgvector retrieval, SSE streaming, schema design, OpenRouter wiring, deployment config, and packaging. Product direction focuses on trust: every answer stays grounded in workspace sources and shows where it came from.
 
-### GPT-5.6 usage
+### OpenRouter usage (runtime)
 
-- **Embeddings:** `text-embedding-3-small` → pgvector
-- **Decision briefs:** GPT-5.6 structured JSON (decisions, open questions, risks, dates, actions)
-- **Streaming chat:** GPT-5.6 + retrieved context + `[Source N]` citations
+- **Embeddings:** `nvidia/llama-nemotron-embed-vl-1b-v2:free` → pgvector (2048-d)
+- **Decision briefs:** free auto-routed chat model (`openrouter/free`) → structured JSON
+- **Streaming chat:** retrieved context + `[Source N]` citations via OpenRouter
 
 ## Launch checklist
 

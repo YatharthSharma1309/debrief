@@ -1,12 +1,13 @@
 import json
+import re
 import uuid
 from datetime import datetime, timezone
 
-from openai import AsyncOpenAI
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.llm.client import get_llm_api_key, get_llm_client
 from app.models import Document, DocumentStatus, Workspace
 from app.prompts.summary import SUMMARY_QUERY, SUMMARY_SYSTEM_PROMPT, SUGGESTED_QUESTIONS_SYSTEM
 from app.rag.search import retrieve_relevant_chunks
@@ -26,22 +27,50 @@ async def _get_context_chunks(db: AsyncSession, workspace_id: uuid.UUID, top_k: 
     return await retrieve_relevant_chunks(db, workspace_id, SUMMARY_QUERY, top_k=top_k)
 
 
-async def _call_json_llm(system: str, user_content: str) -> dict | list:
-    if not settings.openai_api_key:
-        raise ValueError("OPENAI_API_KEY is not configured")
+def _parse_json_content(content: str) -> dict | list:
+    text = (content or "").strip()
+    if not text:
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r"\{[\s\S]*\}|\[[\s\S]*\]", text)
+        if not match:
+            raise
+        return json.loads(match.group(0))
 
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
-    response = await client.chat.completions.create(
-        model=settings.openai_chat_model,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user_content},
-        ],
-        temperature=0.2,
-        response_format={"type": "json_object"},
-    )
+
+async def _call_json_llm(system: str, user_content: str) -> dict | list:
+    if not get_llm_api_key():
+        raise ValueError("OPENROUTER_API_KEY is not configured")
+
+    client = get_llm_client()
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user_content},
+    ]
+    try:
+        response = await client.chat.completions.create(
+            model=settings.llm_chat_model,
+            messages=messages,
+            temperature=0.2,
+            response_format={"type": "json_object"},
+        )
+    except Exception:
+        response = await client.chat.completions.create(
+            model=settings.llm_chat_model,
+            messages=[
+                *messages[:-1],
+                {
+                    "role": "user",
+                    "content": f"{user_content}\n\nRespond with valid JSON only.",
+                },
+            ],
+            temperature=0.2,
+        )
+
     content = response.choices[0].message.content or "{}"
-    return json.loads(content)
+    return _parse_json_content(content)
 
 
 def _format_excerpts(chunks) -> str:
@@ -128,7 +157,7 @@ async def generate_suggested_questions(
         ]
     )
 
-    if not use_ai or not settings.openai_api_key:
+    if not use_ai or not get_llm_api_key():
         return fallback
 
     try:

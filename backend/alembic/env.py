@@ -23,7 +23,9 @@ target_metadata = Base.metadata
 
 
 def get_url() -> str:
-    return settings.database_url.replace("+asyncpg", "")
+    # app uses asyncpg (`ssl=require`); Alembic uses psycopg2 (`sslmode=require`)
+    url = settings.database_url.replace("+asyncpg", "")
+    return url.replace("ssl=require", "sslmode=require")
 
 
 def run_migrations_offline() -> None:

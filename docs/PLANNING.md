@@ -36,8 +36,8 @@ Questions:
 ## OpenAI Setup
 
 1. Create an API key at https://platform.openai.com/api-keys
-2. Put it in `backend/.env` as `OPENAI_API_KEY`
-3. Confirm `OPENAI_CHAT_MODEL` is available to the account
+2. Put it in `backend/.env` as `OPENROUTER_API_KEY` (free key from https://openrouter.ai/keys)
+3. Confirm `LLM_CHAT_MODEL` / `LLM_EMBEDDING_MODEL` (defaults use OpenRouter free models)
 4. Never commit `.env`
 
 ## Milestones

@@ -16,10 +16,14 @@ npm run lint
 Copy `.env.example` to `.env`:
 
 ```bash
+# Optional note for OpenRouter
+# Runtime AI uses OpenRouter free models — set VITE_API_BASE_URL to your backend `/api`.
 VITE_API_BASE_URL=http://localhost:8000/api
 ```
 
 On Vercel, set `VITE_API_BASE_URL` to the deployed backend URL ending in `/api`.
+
+Runtime AI uses OpenRouter free models on the backend (`OPENROUTER_API_KEY`).
 
 ## Main routes
 

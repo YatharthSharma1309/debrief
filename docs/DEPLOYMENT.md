@@ -36,8 +36,9 @@ Railway:
 | Variable | Example |
 |----------|---------|
 | `DATABASE_URL` | `postgresql+asyncpg://...` |
-| `OPENAI_API_KEY` | `sk-...` |
-| `OPENAI_CHAT_MODEL` | model available to your account |
+| `OPENROUTER_API_KEY` | `sk-or-v1-...` (free key from [openrouter.ai/keys](https://openrouter.ai/keys)) |
+| `LLM_CHAT_MODEL` | `openrouter/free` |
+| `LLM_EMBEDDING_MODEL` | `nvidia/llama-nemotron-embed-vl-1b-v2:free` |
 | `JWT_SECRET_KEY` | long random string |
 | `FRONTEND_URL` | `https://your-app.vercel.app` |
 | `CORS_ORIGINS` | `["https://your-app.vercel.app"]` |

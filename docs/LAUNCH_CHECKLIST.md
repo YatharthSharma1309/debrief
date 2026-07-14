@@ -54,8 +54,8 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md).
 - [ ] Vercel frontend
 - [ ] `VITE_API_BASE_URL` points to backend `/api`
 - [ ] `FRONTEND_URL` included in backend CORS
-- [ ] `OPENAI_API_KEY` set
-- [ ] `OPENAI_CHAT_MODEL` confirmed available
+- [ ] `OPENROUTER_API_KEY` set
+- [ ] `LLM_CHAT_MODEL` / `LLM_EMBEDDING_MODEL` confirmed (defaults: free OpenRouter models)
 - [ ] Live E2E passes
 
 ## 3. Screenshots
