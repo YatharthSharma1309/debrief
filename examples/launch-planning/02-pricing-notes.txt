@@ -2,20 +2,29 @@
 
 Meeting date: July 9, 2026
 Participants: Maya, Arjun, Lena, Sofia
+Currency: Indian Rupees (₹ / INR)
+
+Approved launch pricing (INR):
+- Free: ₹0 — limited projects (count still open)
+- Pro: ₹2,499 per user per month
+- Team: ₹6,499 per user per month
+- Enterprise: custom quote after launch (SSO, admin roles, invoice billing)
 
 Pricing decision:
-The team decided to launch the Pro plan at $29 per user per month.
+The team decided to launch self-serve Pro at ₹2,499 per user per month (about $29 USD at planning FX). Team plan launches at ₹6,499 per user per month. No USD-only catalog for the India launch; all public prices show in rupees.
 
 Rationale:
 - Sales-led pricing created too much friction for beta users.
-- The $29 price is low enough for small teams to try without procurement.
-- Annual discounts will be deferred until after the first launch cycle.
+- ₹2,499 is low enough for small Indian teams to try without procurement.
+- Annual discounts and multi-year contracts are deferred until after the first launch cycle.
+- Showing prices in ₹ avoids FX confusion for local buyers.
 
 Owner:
-Arjun owns the pricing page copy and checkout test.
+Arjun owns the pricing page copy (INR), GST invoice note, and checkout test.
 
 Risk:
-Enterprise packaging is still undefined. Lena noted that larger customers may ask for SSO, admin roles, and invoice billing.
+Enterprise packaging is still undefined. Lena noted that larger customers may ask for SSO, admin roles, and invoice billing before committing to Team or Enterprise.
 
-Open question:
-Should the free plan include 3 projects or 5 projects?
+Open questions:
+- Should the free plan include 3 projects or 5 projects?
+- Should Team at ₹6,499 include priority support at launch?

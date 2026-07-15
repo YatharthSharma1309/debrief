@@ -4,8 +4,8 @@ Launch owner: Sofia
 Launch date: August 19, 2026
 
 Required before launch:
-- Pricing page finalized
-- Checkout tested
+- Pricing page finalized (INR: Free ₹0, Pro ₹2,499, Team ₹6,499)
+- Checkout tested with rupee amounts + GST note
 - Demo workspace created
 - Customer announcement email approved
 - Help docs reviewed

@@ -9,7 +9,7 @@ interface ChatInputProps {
 export default function ChatInput({
   onSend,
   disabled,
-  placeholder = 'Ask about decisions, risks, or next actions...',
+  placeholder = 'Ask about pricing (₹), decisions, owners, risks…',
 }: ChatInputProps) {
   const [content, setContent] = useState('')
 

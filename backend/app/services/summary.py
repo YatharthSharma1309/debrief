@@ -156,7 +156,7 @@ async def generate_suggested_questions(
     fallback = SuggestedQuestionsResponse(
         questions=[
             "What decisions have already been made?",
-            "What did we decide about pricing and why?",
+            "What pricing in rupees (₹) did we approve and why?",
             "Who owns launch readiness?",
             "What is still unresolved before launch?",
         ]

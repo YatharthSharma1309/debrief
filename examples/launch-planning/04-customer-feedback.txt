@@ -4,7 +4,7 @@ Feedback window: July 1-11, 2026
 
 Top themes:
 - Small teams liked the fast workspace setup.
-- Users asked for clearer pricing before inviting teammates.
+- Users asked for clearer pricing in rupees (₹) before inviting teammates.
 - Several beta customers wanted examples of launch checklists.
 - Two larger customers asked about SSO and invoice billing.
 

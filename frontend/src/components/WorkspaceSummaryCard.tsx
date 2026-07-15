@@ -126,8 +126,11 @@ function MetaChips({
 }
 
 function ItemRow({
+  kind,
   title,
   subtitle,
+  subtitleLabel = 'Why',
+  showEmptySubtitle = false,
   askLabel,
   onAsk,
   meta,
@@ -135,8 +138,11 @@ function ItemRow({
   documents,
   onJumpToDocument,
 }: {
+  kind?: string
   title: string
   subtitle?: string | null
+  subtitleLabel?: string
+  showEmptySubtitle?: boolean
   askLabel: string
   onAsk?: () => void
   meta?: ReactNode
@@ -147,7 +153,12 @@ function ItemRow({
   return (
     <li className="rounded-md border border-border/70 bg-surface px-2.5 py-2">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm leading-snug text-text">{title}</p>
+        <div className="min-w-0">
+          {kind && (
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">{kind}</p>
+          )}
+          <p className={`text-sm leading-snug text-text ${kind ? 'mt-0.5' : ''}`}>{title}</p>
+        </div>
         {onAsk && (
           <button
             type="button"
@@ -158,10 +169,81 @@ function ItemRow({
           </button>
         )}
       </div>
-      {subtitle && <p className="mt-1 text-xs leading-snug text-text-muted">{subtitle}</p>}
+      {subtitle ? (
+        <p className="mt-1 text-xs leading-snug text-text-muted">
+          <span className="font-medium text-text">{subtitleLabel}:</span> {subtitle}
+        </p>
+      ) : showEmptySubtitle ? (
+        <p className="mt-1 text-[11px] italic text-text-muted/80">No rationale found in sources</p>
+      ) : null}
       {meta}
       <SourceChips sources={sources} documents={documents} onJumpToDocument={onJumpToDocument} />
     </li>
+  )
+}
+
+function MoneyMentions({ texts }: { texts: string[] }) {
+  const amounts = new Set<string>()
+  const pattern = /(?:₹|Rs\.?\s*|INR\s*)\s*[\d,]+(?:\.\d+)?(?:\s*\/\s*(?:user\/)?mo(?:nth)?)?/gi
+  for (const text of texts) {
+    const matches = text.match(pattern)
+    if (matches) matches.forEach((m) => amounts.add(m.replace(/\s+/g, ' ').trim()))
+  }
+  if (amounts.size === 0) return null
+  return (
+    <div className="rounded-lg border border-border bg-surface p-3">
+      <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+        Money recovered <span className="text-brand-700">(₹)</span>
+      </h4>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {[...amounts].slice(0, 8).map((amount) => (
+          <span
+            key={amount}
+            className="rounded-md border border-brand-500/25 bg-brand-600/10 px-2 py-1 text-xs font-semibold text-brand-700"
+          >
+            {amount}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function BriefStats({
+  decisions,
+  questions,
+  risks,
+  dates,
+  actions,
+  owners,
+}: {
+  decisions: number
+  questions: number
+  risks: number
+  dates: number
+  actions: number
+  owners: number
+}) {
+  const cells = [
+    { label: 'Decisions', value: decisions },
+    { label: 'Questions', value: questions },
+    { label: 'Risks', value: risks },
+    { label: 'Dates', value: dates },
+    { label: 'Actions', value: actions },
+    { label: 'Owners', value: owners },
+  ]
+  return (
+    <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+      {cells.map((cell) => (
+        <div
+          key={cell.label}
+          className="rounded-md border border-border bg-surface-muted/50 px-2 py-1.5 text-center"
+        >
+          <p className="font-display text-base font-semibold text-brand-700">{cell.value}</p>
+          <p className="text-[9px] uppercase tracking-wide text-text-muted">{cell.label}</p>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -209,14 +291,32 @@ function SummaryContent({
   const actions = summary.action_items.map(asAction)
   const owners = summary.owners ?? []
 
-  const overviewLong = summary.overview.length > 280
+  const overviewLong = summary.overview.length > 420
   const overviewText =
     overviewExpanded || !overviewLong
       ? summary.overview
-      : `${summary.overview.slice(0, 280).trim()}…`
+      : `${summary.overview.slice(0, 420).trim()}…`
+
+  const moneyTexts = [
+    summary.overview,
+    ...decisions.flatMap((d) => [d.text, d.rationale ?? '']),
+    ...questions.map((q) => q.text),
+    ...risks.map((r) => r.text),
+    ...actions.map((a) => a.text),
+    ...dates.map((d) => `${d.label} ${d.date ?? ''}`),
+  ]
 
   return (
     <div className="mt-4 space-y-4">
+      <BriefStats
+        decisions={decisions.length}
+        questions={questions.length}
+        risks={risks.length}
+        dates={dates.length}
+        actions={actions.length}
+        owners={owners.length}
+      />
+
       <div className="rounded-lg border border-border bg-surface-muted/30 p-4">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-700">Overview</p>
         <p className="mt-2 text-sm leading-relaxed text-text">{overviewText}</p>
@@ -231,20 +331,24 @@ function SummaryContent({
         )}
       </div>
 
+      <MoneyMentions texts={moneyTexts} />
+
       {owners.length > 0 && (
         <div className="rounded-lg border border-border bg-surface p-3">
           <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
             Owners <span className="text-brand-700">({owners.length})</span>
           </h4>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {owners.map((owner) => (
               <div
                 key={owner.name}
-                className="rounded-md border border-border bg-surface-muted/50 px-2.5 py-1.5 text-xs"
+                className="rounded-md border border-border bg-surface-muted/50 px-2.5 py-2 text-xs"
               >
                 <span className="font-semibold text-text">{owner.name}</span>
-                {owner.owns && owner.owns.length > 0 && (
-                  <span className="text-text-muted"> · {owner.owns.join(', ')}</span>
+                {owner.owns && owner.owns.length > 0 ? (
+                  <p className="mt-0.5 text-text-muted">{owner.owns.join(' · ')}</p>
+                ) : (
+                  <p className="mt-0.5 italic text-text-muted/80">Ownership areas not stated</p>
                 )}
               </div>
             ))}
@@ -257,8 +361,10 @@ function SummaryContent({
           {decisions.map((item: DecisionItem) => (
             <ItemRow
               key={item.text}
+              kind="Decision"
               title={item.text}
               subtitle={item.rationale}
+              showEmptySubtitle
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromDecision(item)) : undefined}
               meta={
@@ -275,6 +381,7 @@ function SummaryContent({
           {questions.map((item: QuestionItem) => (
             <ItemRow
               key={item.text}
+              kind="Open"
               title={item.text}
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromQuestion(item)) : undefined}
@@ -290,6 +397,7 @@ function SummaryContent({
           {risks.map((item: RiskItem) => (
             <ItemRow
               key={item.text}
+              kind={item.type ?? item.risk_type ? `Risk · ${item.type ?? item.risk_type}` : 'Risk'}
               title={item.text}
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromRisk(item)) : undefined}
@@ -310,8 +418,10 @@ function SummaryContent({
           {dates.map((item: DateItem) => (
             <ItemRow
               key={`${item.label}-${item.date ?? ''}`}
+              kind="Date"
               title={item.date ? `${item.label}: ${item.date}` : item.label}
-              subtitle={item.conflict_with ? `Conflicts with ${item.conflict_with}` : null}
+              subtitle={item.conflict_with ? item.conflict_with : null}
+              subtitleLabel="Conflicts with"
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromDate(item)) : undefined}
               sources={item.sources}
@@ -325,6 +435,7 @@ function SummaryContent({
           {actions.map((item: ActionItem) => (
             <ItemRow
               key={item.text}
+              kind={item.status ? `Action · ${item.status}` : 'Action'}
               title={item.text}
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromAction(item)) : undefined}

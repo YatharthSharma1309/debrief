@@ -59,9 +59,10 @@ Rules:
 - Prefer structured objects over plain strings.
 - If a field has no data, use an empty array.
 - Prefer decisions, owners, rationale, unresolved issues, contradictions, and dates over generic topics.
+- Preserve money exactly as written (₹ / INR amounts, plan names, $/mo if present). Do not convert currencies unless the source already states both.
 - For contradictions (e.g. two launch dates), put them in risks with type "contradiction" AND in important_dates with conflict_with.
 - sources.filename must match excerpt filenames when possible.
-- suggested_questions should help recover decisions, risks, owners, and next actions.
+- suggested_questions should help recover decisions, risks, owners, pricing amounts, and next actions.
 - Return valid JSON only, no markdown fences."""
 
 SUGGESTED_QUESTIONS_SYSTEM = """You suggest decision-recovery questions the user can ask about their uploaded workspace documents.

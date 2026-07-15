@@ -199,7 +199,9 @@ export default function ChatPanel({
         onSend={sendMessage}
         disabled={!activeSessionId || isStreaming}
         placeholder={
-          activeSessionId ? 'Ask about decisions, risks, or next actions…' : 'Create a chat to begin'
+          activeSessionId
+            ? 'Ask about pricing (₹), decisions, owners, risks…'
+            : 'Create a chat to begin'
         }
       />
     </div>

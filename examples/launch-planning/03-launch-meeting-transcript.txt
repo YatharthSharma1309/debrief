@@ -6,21 +6,22 @@ Maya:
 We are still targeting August 12 for the public launch. The launch readiness owner is Sofia.
 
 Sofia:
-I can own the launch checklist, but I need final pricing copy from Arjun by July 24.
+I can own the launch checklist, but I need final pricing copy from Arjun by July 24 — including ₹ amounts and GST note.
 
 Arjun:
-Pricing is set at $29 per user per month for Pro. I will prepare the copy and checkout QA plan.
+Pricing is set in rupees. Pro at ₹2,499 per user per month. Team at ₹6,499 per user per month. Free stays ₹0. I will prepare the INR pricing page copy and checkout QA plan.
 
 Lena:
-Customer feedback is strong, but we should be careful about promising enterprise features. SSO is not ready.
+Customer feedback is strong, but we should be careful about promising enterprise features. SSO is not ready. Do not list Enterprise pricing until SSO ships.
 
 Decision:
-Launch with self-serve Pro first. Do not announce enterprise support in the initial public launch.
+Launch with self-serve Pro and Team in INR first. Do not announce enterprise support or custom enterprise pricing in the initial public launch.
 
 Action items:
-- Arjun: pricing copy and checkout QA by July 24
+- Arjun: INR pricing copy and checkout QA by July 24
 - Sofia: launch checklist and release coordination
 - Maya: final launch approval
 
 Risk:
 If SSO appears in marketing copy, customers may assume enterprise readiness before it exists.
+If USD prices appear beside ₹ without explanation, buyers may think there are two different offers.

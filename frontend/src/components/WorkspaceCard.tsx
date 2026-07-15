@@ -124,20 +124,23 @@ export default function WorkspaceCard({ workspace, onDelete, isDeleting }: Works
                 </p>
               )}
               {stats && (
-                <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-text-muted">
-                  <span>{stats.decisions} decisions</span>
-                  <span aria-hidden>·</span>
-                  <span>{stats.questions} questions</span>
-                  <span aria-hidden>·</span>
-                  <span>{stats.risks} risks</span>
-                  <span aria-hidden>·</span>
-                  <span>{stats.actions} actions</span>
-                  {stats.dates > 0 && (
-                    <>
-                      <span aria-hidden>·</span>
-                      <span>{stats.dates} dates</span>
-                    </>
-                  )}
+                <div className="mt-2 grid grid-cols-4 gap-1 text-center text-[10px]">
+                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
+                    <span className="font-semibold text-brand-700">{stats.decisions}</span>
+                    <span className="block text-text-muted">decisions</span>
+                  </span>
+                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
+                    <span className="font-semibold text-brand-700">{stats.questions}</span>
+                    <span className="block text-text-muted">questions</span>
+                  </span>
+                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
+                    <span className="font-semibold text-brand-700">{stats.risks}</span>
+                    <span className="block text-text-muted">risks</span>
+                  </span>
+                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
+                    <span className="font-semibold text-brand-700">{stats.actions}</span>
+                    <span className="block text-text-muted">actions</span>
+                  </span>
                 </div>
               )}
             </div>
