@@ -29,10 +29,9 @@ function formatDate(iso: string) {
 function briefCounts(brief: WorkspaceSummary) {
   return {
     decisions: brief.key_decisions.length,
-    questions: brief.open_questions.length,
+    budget: brief.budget_items?.length ?? 0,
+    assumptions: brief.assumptions?.length ?? 0,
     risks: brief.risks.length,
-    dates: brief.important_dates.length,
-    actions: brief.action_items.length,
   }
 }
 
@@ -130,16 +129,16 @@ export default function WorkspaceCard({ workspace, onDelete, isDeleting }: Works
                     <span className="block text-text-muted">decisions</span>
                   </span>
                   <span className="rounded border border-border/70 bg-surface px-1 py-1">
-                    <span className="font-semibold text-brand-700">{stats.questions}</span>
-                    <span className="block text-text-muted">questions</span>
+                    <span className="font-semibold text-brand-700">{stats.budget}</span>
+                    <span className="block text-text-muted">budget</span>
+                  </span>
+                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
+                    <span className="font-semibold text-brand-700">{stats.assumptions}</span>
+                    <span className="block text-text-muted">assumptions</span>
                   </span>
                   <span className="rounded border border-border/70 bg-surface px-1 py-1">
                     <span className="font-semibold text-brand-700">{stats.risks}</span>
                     <span className="block text-text-muted">risks</span>
-                  </span>
-                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
-                    <span className="font-semibold text-brand-700">{stats.actions}</span>
-                    <span className="block text-text-muted">actions</span>
                   </span>
                 </div>
               )}

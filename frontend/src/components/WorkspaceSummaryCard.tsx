@@ -3,19 +3,28 @@ import { useGenerateSummary, usePersistedSummary } from '../hooks/useSummary'
 import type { Document } from '../services/documents'
 import {
   asAction,
+  asAssumption,
+  asBudget,
   asDate,
   asDecision,
+  asMetric,
   asQuestion,
   asRisk,
   askPromptFromAction,
+  askPromptFromAssumption,
+  askPromptFromBudget,
   askPromptFromDate,
   askPromptFromDecision,
+  askPromptFromMetric,
   askPromptFromQuestion,
   askPromptFromRisk,
   type ActionItem,
+  type AssumptionItem,
   type BriefSource,
+  type BudgetItem,
   type DateItem,
   type DecisionItem,
+  type MetricItem,
   type QuestionItem,
   type RiskItem,
   type WorkspaceSummary,
@@ -86,6 +95,20 @@ function SourceChips({
   )
 }
 
+function statusChipClass(status: string) {
+  const s = status.toLowerCase()
+  if (s === 'approved' || s === 'done') {
+    return 'rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 dark:text-emerald-200'
+  }
+  if (s === 'proposed' || s === 'open') {
+    return 'rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] font-medium text-sky-800 dark:text-sky-200'
+  }
+  if (s === 'deferred' || s === 'blocked') {
+    return 'rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:text-amber-200'
+  }
+  return 'rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700'
+}
+
 function MetaChips({
   owner,
   confidence,
@@ -93,6 +116,7 @@ function MetaChips({
   riskType,
   due,
   status,
+  currency,
 }: {
   owner?: string | null
   confidence?: string | null
@@ -100,20 +124,26 @@ function MetaChips({
   riskType?: string | null
   due?: string | null
   status?: string | null
+  currency?: string | null
 }) {
-  const chips = [
+  const plain = [
     owner ? `Owner: ${owner}` : null,
     confidence ? `Confidence: ${confidence}` : null,
     severity ? `Severity: ${severity}` : null,
     riskType ? riskType : null,
     due ? `Due: ${due}` : null,
-    status ? status : null,
+    currency ? currency : null,
   ].filter(Boolean) as string[]
 
-  if (!chips.length) return null
+  if (!plain.length && !status) return null
   return (
     <div className="mt-1.5 flex flex-wrap gap-1">
-      {chips.map((chip) => (
+      {status && (
+        <span className={statusChipClass(status)}>
+          {status}
+        </span>
+      )}
+      {plain.map((chip) => (
         <span
           key={chip}
           className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700"
@@ -182,27 +212,50 @@ function ItemRow({
   )
 }
 
-function MoneyMentions({ texts }: { texts: string[] }) {
-  const amounts = new Set<string>()
-  const pattern = /(?:₹|Rs\.?\s*|INR\s*)\s*[\d,]+(?:\.\d+)?(?:\s*\/\s*(?:user\/)?mo(?:nth)?)?/gi
-  for (const text of texts) {
-    const matches = text.match(pattern)
-    if (matches) matches.forEach((m) => amounts.add(m.replace(/\s+/g, ' ').trim()))
-  }
-  if (amounts.size === 0) return null
+function BudgetPanel({
+  items,
+  documents,
+  onAskQuestion,
+  onJumpToDocument,
+}: {
+  items: BudgetItem[]
+  documents?: Document[]
+  onAskQuestion?: (question: string) => void
+  onJumpToDocument?: (documentId: string) => void
+}) {
+  if (!items.length) return null
   return (
     <div className="rounded-lg border border-border bg-surface p-3">
       <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-        Money recovered <span className="text-brand-700">(₹)</span>
+        Budget & pricing <span className="text-brand-700">({items.length})</span>
       </h4>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {[...amounts].slice(0, 8).map((amount) => (
-          <span
-            key={amount}
-            className="rounded-md border border-brand-500/25 bg-brand-600/10 px-2 py-1 text-xs font-semibold text-brand-700"
+      <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {items.map((item) => (
+          <div
+            key={`${item.label}-${item.amount}`}
+            className="rounded-md border border-border bg-surface-muted/50 px-2.5 py-2"
           >
-            {amount}
-          </span>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[11px] text-text-muted">{item.label}</p>
+              {onAskQuestion && (
+                <button
+                  type="button"
+                  onClick={() => onAskQuestion(askPromptFromBudget(item))}
+                  className="text-[10px] font-medium text-brand-700 hover:underline"
+                >
+                  Ask
+                </button>
+              )}
+            </div>
+            <p className="mt-0.5 font-display text-sm font-semibold text-text">{item.amount || '—'}</p>
+            {item.notes && <p className="mt-0.5 text-[10px] text-text-muted">{item.notes}</p>}
+            <MetaChips currency={item.currency} />
+            <SourceChips
+              sources={item.sources}
+              documents={documents}
+              onJumpToDocument={onJumpToDocument}
+            />
+          </div>
         ))}
       </div>
     </div>
@@ -211,26 +264,26 @@ function MoneyMentions({ texts }: { texts: string[] }) {
 
 function BriefStats({
   decisions,
-  questions,
+  budget,
+  assumptions,
+  metrics,
   risks,
-  dates,
-  actions,
-  owners,
+  questions,
 }: {
   decisions: number
-  questions: number
+  budget: number
+  assumptions: number
+  metrics: number
   risks: number
-  dates: number
-  actions: number
-  owners: number
+  questions: number
 }) {
   const cells = [
     { label: 'Decisions', value: decisions },
-    { label: 'Questions', value: questions },
+    { label: 'Budget', value: budget },
+    { label: 'Assumptions', value: assumptions },
+    { label: 'Metrics', value: metrics },
     { label: 'Risks', value: risks },
-    { label: 'Dates', value: dates },
-    { label: 'Actions', value: actions },
-    { label: 'Owners', value: owners },
+    { label: 'Open Qs', value: questions },
   ]
   return (
     <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
@@ -289,7 +342,13 @@ function SummaryContent({
   const risks = summary.risks.map(asRisk)
   const dates = summary.important_dates.map(asDate)
   const actions = summary.action_items.map(asAction)
+  const budget = (summary.budget_items ?? []).map(asBudget)
+  const assumptions = (summary.assumptions ?? []).map(asAssumption)
+  const metrics = (summary.metrics ?? []).map(asMetric)
   const owners = summary.owners ?? []
+  const approved = decisions.filter((d) => (d.status ?? '').toLowerCase() === 'approved').length
+  const proposed = decisions.filter((d) => (d.status ?? '').toLowerCase() === 'proposed').length
+  const deferred = decisions.filter((d) => (d.status ?? '').toLowerCase() === 'deferred').length
 
   const overviewLong = summary.overview.length > 420
   const overviewText =
@@ -297,25 +356,30 @@ function SummaryContent({
       ? summary.overview
       : `${summary.overview.slice(0, 420).trim()}…`
 
-  const moneyTexts = [
-    summary.overview,
-    ...decisions.flatMap((d) => [d.text, d.rationale ?? '']),
-    ...questions.map((q) => q.text),
-    ...risks.map((r) => r.text),
-    ...actions.map((a) => a.text),
-    ...dates.map((d) => `${d.label} ${d.date ?? ''}`),
-  ]
-
   return (
     <div className="mt-4 space-y-4">
       <BriefStats
         decisions={decisions.length}
-        questions={questions.length}
+        budget={budget.length}
+        assumptions={assumptions.length}
+        metrics={metrics.length}
         risks={risks.length}
-        dates={dates.length}
-        actions={actions.length}
-        owners={owners.length}
+        questions={questions.length}
       />
+
+      {(approved > 0 || proposed > 0 || deferred > 0) && (
+        <div className="flex flex-wrap gap-1.5 text-[11px]">
+          {approved > 0 && (
+            <span className={statusChipClass('approved')}>{approved} approved</span>
+          )}
+          {proposed > 0 && (
+            <span className={statusChipClass('proposed')}>{proposed} proposed</span>
+          )}
+          {deferred > 0 && (
+            <span className={statusChipClass('deferred')}>{deferred} deferred</span>
+          )}
+        </div>
+      )}
 
       <div className="rounded-lg border border-border bg-surface-muted/30 p-4">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-700">Overview</p>
@@ -331,7 +395,12 @@ function SummaryContent({
         )}
       </div>
 
-      <MoneyMentions texts={moneyTexts} />
+      <BudgetPanel
+        items={budget}
+        documents={documents}
+        onAskQuestion={onAskQuestion}
+        onJumpToDocument={onJumpToDocument}
+      />
 
       {owners.length > 0 && (
         <div className="rounded-lg border border-border bg-surface p-3">
@@ -361,15 +430,59 @@ function SummaryContent({
           {decisions.map((item: DecisionItem) => (
             <ItemRow
               key={item.text}
-              kind="Decision"
+              kind={item.status ? `Decision · ${item.status}` : 'Decision'}
               title={item.text}
               subtitle={item.rationale}
               showEmptySubtitle
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromDecision(item)) : undefined}
               meta={
-                <MetaChips owner={item.owner} confidence={item.confidence} />
+                <MetaChips
+                  owner={item.owner}
+                  confidence={item.confidence}
+                  status={item.status}
+                />
               }
+              sources={item.sources}
+              documents={documents}
+              onJumpToDocument={onJumpToDocument}
+            />
+          ))}
+        </Section>
+
+        <Section
+          title="Assumptions"
+          count={assumptions.length}
+          emptyHint="No operating assumptions extracted."
+        >
+          {assumptions.map((item: AssumptionItem) => (
+            <ItemRow
+              key={item.text}
+              kind="Assumption"
+              title={item.text}
+              askLabel="Ask"
+              onAsk={
+                onAskQuestion ? () => onAskQuestion(askPromptFromAssumption(item)) : undefined
+              }
+              meta={<MetaChips owner={item.owner} />}
+              sources={item.sources}
+              documents={documents}
+              onJumpToDocument={onJumpToDocument}
+            />
+          ))}
+        </Section>
+
+        <Section title="Metrics" count={metrics.length} emptyHint="No metric targets found.">
+          {metrics.map((item: MetricItem) => (
+            <ItemRow
+              key={`${item.name}-${item.target}`}
+              kind="Metric"
+              title={item.name}
+              subtitle={item.target}
+              subtitleLabel="Target"
+              askLabel="Ask"
+              onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromMetric(item)) : undefined}
+              meta={<MetaChips owner={item.owner} />}
               sources={item.sources}
               documents={documents}
               onJumpToDocument={onJumpToDocument}
@@ -499,8 +612,8 @@ export default function WorkspaceSummaryCard({
         <h3 className="font-display text-lg font-semibold text-text">Decision Brief</h3>
         <p className="mt-1 text-sm text-text-muted">
           Upload documents and wait until they show <span className="font-medium text-text">Ready</span>.
-          Then generate a brief covering decisions, owners, rationale, risks, dates, and open questions —
-          each with source citations.
+          Then generate a brief covering decisions (approved/proposed/deferred), budget (₹), assumptions,
+          metrics, owners, risks, and open questions — each with sources.
         </p>
       </div>
     )
@@ -512,7 +625,7 @@ export default function WorkspaceSummaryCard({
         <div>
           <h3 className="font-display text-lg font-semibold text-text">Decision Brief</h3>
           <p className="mt-1 text-xs text-text-muted">
-            {readyDocCount} ready source{readyDocCount === 1 ? '' : 's'} · owners, rationale, risks, dates, actions + sources
+            {readyDocCount} ready source{readyDocCount === 1 ? '' : 's'} · status · budget · assumptions · metrics · risks + sources
           </p>
           {summary?.generated_at && (
             <p className="mt-1 text-xs text-text-muted">
@@ -561,7 +674,7 @@ export default function WorkspaceSummaryCard({
         <div className="mt-4 rounded-lg border border-dashed border-border bg-surface-muted/30 p-4">
           <p className="text-sm text-text">
             {readyDocCount} document{readyDocCount === 1 ? '' : 's'} ready. Generate a Decision Brief to
-            recover pricing decisions, owners, rationale, risks, and unresolved items with source chips.
+            recover approved vs proposed decisions, ₹ budget lines, assumptions, metrics, and risks.
           </p>
         </div>
       )}

@@ -9,11 +9,11 @@ const recovered = [
 ]
 
 const stats = [
-  { label: 'Decisions', value: '3' },
+  { label: 'Decisions', value: '4' },
+  { label: 'Budget', value: '4' },
+  { label: 'Assumptions', value: '3' },
+  { label: 'Metrics', value: '2' },
   { label: 'Risks', value: '2' },
-  { label: 'Dates', value: '3' },
-  { label: 'Actions', value: '3' },
-  { label: 'Open Qs', value: '2' },
 ]
 
 export default function HomePage() {
@@ -141,7 +141,7 @@ export default function HomePage() {
               <li className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Decision · pricing
+                    Decision · approved
                   </p>
                   <span className="text-[10px] font-medium text-brand-700">Ask →</span>
                 </div>
@@ -152,6 +152,9 @@ export default function HomePage() {
                   Why: sales-led pricing slowed beta trials; ₹ pricing removes FX confusion for local buyers.
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1">
+                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 dark:text-emerald-200">
+                    approved
+                  </span>
                   <span className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
                     Owner: Arjun
                   </span>
@@ -170,17 +173,20 @@ export default function HomePage() {
               <li className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Decision · scope
+                    Decision · deferred
                   </p>
                   <span className="text-[10px] font-medium text-brand-700">Ask →</span>
                 </div>
                 <p className="mt-1 text-sm leading-snug text-text">
-                  Launch self-serve first; do not announce Enterprise / SSO pricing yet.
+                  Do not announce Enterprise / SSO pricing at launch.
                 </p>
                 <p className="mt-1 text-xs leading-snug text-text-muted">
                   Why: most beta demand is &lt;20-person teams; SSO is not ready.
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1">
+                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:text-amber-200">
+                    deferred
+                  </span>
                   <span className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
                     Owner: Maya
                   </span>
@@ -241,6 +247,27 @@ export default function HomePage() {
                     <li>Arjun · INR page + checkout QA · open</li>
                     <li>Sofia · launch checklist · open</li>
                     <li>Maya · final approval · blocked on date</li>
+                  </ul>
+                </div>
+              </li>
+
+              <li className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                    Assumptions
+                  </p>
+                  <ul className="mt-1.5 space-y-1 text-xs text-text">
+                    <li>Beta users are small teams / founders</li>
+                    <li>India catalog is ₹-only at launch</li>
+                  </ul>
+                </div>
+                <div className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                    Metrics
+                  </p>
+                  <ul className="mt-1.5 space-y-1 text-xs text-text">
+                    <li>Onboarding &lt; 10 min · Maya</li>
+                    <li>60% create 2nd doc in week 1</li>
                   </ul>
                 </div>
               </li>

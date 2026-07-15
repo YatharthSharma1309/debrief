@@ -10,6 +10,7 @@ export interface DecisionItem {
   rationale?: string | null
   owner?: string | null
   confidence?: string | null
+  status?: string | null
   sources?: BriefSource[]
 }
 
@@ -47,6 +48,27 @@ export interface OwnerItem {
   owns?: string[]
 }
 
+export interface BudgetItem {
+  label: string
+  amount: string
+  currency?: string | null
+  notes?: string | null
+  sources?: BriefSource[]
+}
+
+export interface AssumptionItem {
+  text: string
+  owner?: string | null
+  sources?: BriefSource[]
+}
+
+export interface MetricItem {
+  name: string
+  target: string
+  owner?: string | null
+  sources?: BriefSource[]
+}
+
 export interface WorkspaceSummary {
   overview: string
   key_decisions: Array<string | DecisionItem>
@@ -55,6 +77,9 @@ export interface WorkspaceSummary {
   important_dates: Array<string | DateItem>
   action_items: Array<string | ActionItem>
   owners?: OwnerItem[]
+  budget_items?: Array<string | BudgetItem>
+  assumptions?: Array<string | AssumptionItem>
+  metrics?: Array<string | MetricItem>
   suggested_questions: string[]
   generated_at?: string | null
 }
@@ -79,8 +104,33 @@ export function asAction(item: string | ActionItem): ActionItem {
   return typeof item === 'string' ? { text: item } : item
 }
 
+export function asBudget(item: string | BudgetItem): BudgetItem {
+  return typeof item === 'string' ? { label: item, amount: '' } : item
+}
+
+export function asAssumption(item: string | AssumptionItem): AssumptionItem {
+  return typeof item === 'string' ? { text: item } : item
+}
+
+export function asMetric(item: string | MetricItem): MetricItem {
+  return typeof item === 'string' ? { name: item, target: '' } : item
+}
+
 export function askPromptFromDecision(item: DecisionItem): string {
-  return `What did we decide about "${item.text}" and why?`
+  const status = item.status ? ` (status: ${item.status})` : ''
+  return `What did we decide about "${item.text}"${status} and why?`
+}
+
+export function askPromptFromBudget(item: BudgetItem): string {
+  return `What is the approved pricing for ${item.label} (${item.amount})${item.notes ? ` — ${item.notes}` : ''}?`
+}
+
+export function askPromptFromAssumption(item: AssumptionItem): string {
+  return `Is this still an operating assumption: ${item.text}?`
+}
+
+export function askPromptFromMetric(item: MetricItem): string {
+  return `What is the target for ${item.name} and are we on track for ${item.target}?`
 }
 
 export function askPromptFromRisk(item: RiskItem): string {

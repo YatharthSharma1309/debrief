@@ -93,6 +93,9 @@ def _summary_from_payload(payload: dict, generated_at: datetime | None = None) -
             "important_dates": payload.get("important_dates", []),
             "action_items": payload.get("action_items", []),
             "owners": payload.get("owners", []),
+            "budget_items": payload.get("budget_items", []),
+            "assumptions": payload.get("assumptions", []),
+            "metrics": payload.get("metrics", []),
             "suggested_questions": payload.get("suggested_questions", []),
             "generated_at": generated_at,
         }

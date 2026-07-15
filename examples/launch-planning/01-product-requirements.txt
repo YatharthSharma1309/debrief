@@ -10,8 +10,19 @@ Key requirements:
 - Include import support for meeting notes and project documents.
 - Provide a launch checklist before public announcement.
 
-Decision:
-The team agreed to prioritize self-serve onboarding before enterprise admin controls. The rationale was that beta users are mostly small teams and founders who need speed more than procurement workflows.
+Metric targets:
+- Onboarding completion under 10 minutes (owner: Maya)
+- Activation: at least 60% of new Pro trials create a second document in week 1
+
+Assumptions:
+- Beta users are mostly small teams and founders who need speed more than procurement workflows.
+- India public prices will be listed only in rupees (₹ / INR).
+
+Decision (approved):
+The team agreed to prioritize self-serve onboarding before enterprise admin controls.
+
+Decision (deferred):
+Enterprise SSO and admin controls are deferred until after the first public launch.
 
 Open question:
 Enterprise SSO remains unresolved and should not block the first public launch.
