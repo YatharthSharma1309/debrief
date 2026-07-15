@@ -84,15 +84,18 @@ def _format_excerpts(chunks) -> str:
 
 
 def _summary_from_payload(payload: dict, generated_at: datetime | None = None) -> WorkspaceSummaryResponse:
-    return WorkspaceSummaryResponse(
-        overview=payload.get("overview", ""),
-        key_decisions=payload.get("key_decisions", []),
-        open_questions=payload.get("open_questions", []),
-        risks=payload.get("risks", []),
-        important_dates=payload.get("important_dates", []),
-        action_items=payload.get("action_items", []),
-        suggested_questions=payload.get("suggested_questions", []),
-        generated_at=generated_at,
+    return WorkspaceSummaryResponse.model_validate(
+        {
+            "overview": payload.get("overview", ""),
+            "key_decisions": payload.get("key_decisions", []),
+            "open_questions": payload.get("open_questions", []),
+            "risks": payload.get("risks", []),
+            "important_dates": payload.get("important_dates", []),
+            "action_items": payload.get("action_items", []),
+            "owners": payload.get("owners", []),
+            "suggested_questions": payload.get("suggested_questions", []),
+            "generated_at": generated_at,
+        }
     )
 
 
@@ -109,7 +112,7 @@ async def generate_workspace_summary(
 ) -> WorkspaceSummaryResponse:
     ready_count = await count_ready_documents(db, workspace.id)
     if ready_count == 0:
-        raise ValueError("Upload and process at least one document before generating a summary")
+        raise ValueError("Upload and process at least one document before generating a Decision Brief")
 
     chunks = await _get_context_chunks(db, workspace.id)
     excerpts = _format_excerpts(chunks)
@@ -121,7 +124,9 @@ async def generate_workspace_summary(
 
     summary = _summary_from_payload(data)
     now = datetime.now(timezone.utc)
-    workspace.decision_brief = summary.model_dump(mode="json", exclude={"generated_at"})
+    workspace.decision_brief = summary.model_dump(
+        mode="json", exclude={"generated_at"}, by_alias=True
+    )
     workspace.decision_brief_at = now
     await db.commit()
     await db.refresh(workspace)

@@ -21,7 +21,7 @@ alembic upgrade head
 python scripts/seed_demo.py
 ```
 
-**Debrief** turns scattered project documents, meeting notes, launch plans, and transcripts into a cited team-memory workspace. Upload files, generate a **decision brief**, then ask follow-up questions with streaming answers grounded in your sources.
+**Debrief** recovers **decisions, rationale, owners, risks, open questions, and dates** from scattered project docs, notes, launch plans, and transcripts. Upload files → generate a cited **Decision Brief** (structured rows with sources) → verify with cited follow-ups. Not another PDF chatbot.
 
 ## Why it matters
 
@@ -39,11 +39,12 @@ Debrief helps fast-moving teams answer:
 
 | Feature | Description |
 |---------|-------------|
-| Decision Brief | Key decisions, open questions, risks, dates, and action items |
-| Cited RAG Chat | Streaming answers with source citations, excerpts, and relevance % |
+| Decision Brief | Structured recovery: decisions (rationale, owner, confidence), risks/contradictions, dates, actions, owners roster — each with source chips |
+| Cited follow-ups | Ask why / who owns / what’s open; streaming answers with excerpts + relevance % |
+| Stale brief signal | Prompts regenerate when docs change after the brief was saved |
 | Workspaces | Project context isolated by workspace and user |
-| Multi-format Uploads | PDF, DOCX, and TXT |
-| Suggested Questions | Decision-focused follow-up prompts |
+| Multi-format Uploads | PDF, DOCX, and TXT (notes, transcripts, plans) |
+| Suggested Questions | Decision-forcing prompts seeded from the brief |
 | Auth + History | JWT auth and persistent chat sessions |
 | Dark Mode | Light/dark UI |
 
@@ -144,7 +145,7 @@ App: http://localhost:5173
 
 **Track:** Work & Productivity
 
-**Positioning:** Memory infrastructure for fast-moving teams — cited decisions, risks, action items, and follow-up answers. Built with Codex; inference runs on OpenRouter free models so demos stay $0 to operate.
+**Positioning:** Decision recovery for launch/review — cited decisions, rationale, owners, risks, and open loops from scattered team docs. Built with Codex; inference runs on OpenRouter free models so demos stay $0 to operate. See [docs/COMPETITIVE_LANDSCAPE.md](docs/COMPETITIVE_LANDSCAPE.md).
 
 ### Built with Codex
 
@@ -171,7 +172,7 @@ Codex (via Cursor) accelerated FastAPI scaffolding, pgvector retrieval, SSE stre
 debrief/
 ├── backend/          FastAPI + RAG
 ├── frontend/         React app
-├── docs/             Architecture, deployment, Build Week plan
+├── docs/             Architecture, competitive landscape, demo/Devpost, deployment
 ├── examples/         Sample launch-planning documents
 ├── screenshots/      Submission images
 └── docker-compose.yml

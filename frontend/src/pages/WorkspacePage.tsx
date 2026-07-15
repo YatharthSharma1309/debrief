@@ -1,8 +1,8 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import AppHeader from '../components/AppHeader'
-import DocumentList from '../components/DocumentList'
+import DocumentList, { documentStatusCounts } from '../components/DocumentList'
 import DocumentUpload from '../components/DocumentUpload'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ChatPanel from '../components/ChatPanel'
@@ -17,7 +17,8 @@ export default function WorkspacePage() {
   const token = useAuthStore((s) => s.token)
   const updateWorkspace = useUpdateWorkspace(workspaceId!)
   const { data: documents, isLoading: docsLoading, error: docsError } = useDocuments(workspaceId!)
-  const hasReadyDocs = documents?.some((d) => d.status === 'ready') ?? false
+  const counts = documents ? documentStatusCounts(documents) : null
+  const hasReadyDocs = (counts?.ready ?? 0) > 0
   const deleteDocument = useDeleteDocument(workspaceId!)
 
   const { data: workspace, isLoading, error } = useQuery({
@@ -30,6 +31,23 @@ export default function WorkspacePage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
+  const [highlightedDocumentId, setHighlightedDocumentId] = useState<string | null>(null)
+
+  const jumpToDocument = useCallback((documentId: string) => {
+    setHighlightedDocumentId(documentId)
+    requestAnimationFrame(() => {
+      document.getElementById(`doc-${documentId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!highlightedDocumentId) return
+    const timer = window.setTimeout(() => setHighlightedDocumentId(null), 4000)
+    return () => window.clearTimeout(timer)
+  }, [highlightedDocumentId])
 
   function startEditing() {
     if (!workspace) return
@@ -51,7 +69,7 @@ export default function WorkspacePage() {
     <div className="min-h-screen">
       <AppHeader />
 
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-6xl px-6 py-8">
         <Link to="/dashboard" className="text-sm text-brand-600 hover:text-brand-700">
           ← All workspaces
         </Link>
@@ -64,7 +82,7 @@ export default function WorkspacePage() {
         )}
 
         {workspace && (
-          <div className="mt-8">
+          <div className="mt-6 space-y-6">
             {isEditing ? (
               <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
                 <div>
@@ -113,10 +131,43 @@ export default function WorkspacePage() {
               <>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-text">{workspace.name}</h1>
+                    <h1 className="font-display text-3xl font-semibold tracking-tight text-text">
+                      {workspace.name}
+                    </h1>
                     {workspace.description && (
-                      <p className="mt-2 text-text-muted">{workspace.description}</p>
+                      <p className="mt-2 max-w-3xl text-text-muted">{workspace.description}</p>
                     )}
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-text-muted">
+                      <span>
+                        Updated{' '}
+                        {new Date(workspace.updated_at).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      {counts && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span>{counts.total} documents</span>
+                          <span aria-hidden>·</span>
+                          <span className="text-emerald-700 dark:text-emerald-300">{counts.ready} ready</span>
+                          {counts.processing > 0 && (
+                            <>
+                              <span aria-hidden>·</span>
+                              <span>{counts.processing} processing</span>
+                            </>
+                          )}
+                          {counts.failed > 0 && (
+                            <>
+                              <span aria-hidden>·</span>
+                              <span className="text-red-600 dark:text-red-400">{counts.failed} failed</span>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -130,18 +181,21 @@ export default function WorkspacePage() {
                 <WorkspaceSummaryCard
                   workspaceId={workspaceId!}
                   hasReadyDocs={hasReadyDocs}
+                  readyDocCount={counts?.ready ?? 0}
+                  documents={documents ?? []}
                   onAskQuestion={setPendingQuestion}
+                  onJumpToDocument={jumpToDocument}
                 />
 
-                <section className="mt-8 grid gap-8 lg:grid-cols-2">
-                  <div className="space-y-6">
+                <section className="grid gap-6 lg:grid-cols-2">
+                  <div className="space-y-5">
                     <DocumentUpload workspaceId={workspaceId!} />
 
                     <div>
                       <h2 className="text-sm font-medium uppercase tracking-wide text-text-muted">
                         Documents
                       </h2>
-                      <div className="mt-4">
+                      <div className="mt-3">
                         {docsLoading && <LoadingSpinner label="Loading documents…" />}
                         {docsError && (
                           <p className="text-sm text-red-600">
@@ -153,6 +207,7 @@ export default function WorkspacePage() {
                             documents={documents}
                             onDelete={(id) => deleteDocument.mutate(id)}
                             isDeleting={deleteDocument.isPending}
+                            highlightedDocumentId={highlightedDocumentId}
                           />
                         )}
                       </div>
@@ -165,6 +220,7 @@ export default function WorkspacePage() {
                       hasReadyDocs={hasReadyDocs}
                       pendingQuestion={pendingQuestion}
                       onQuestionConsumed={() => setPendingQuestion(null)}
+                      hideSuggestedChips
                     />
                   </div>
                 </section>

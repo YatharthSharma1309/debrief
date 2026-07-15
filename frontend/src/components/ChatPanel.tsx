@@ -15,6 +15,16 @@ interface ChatPanelProps {
   hasReadyDocs?: boolean
   pendingQuestion?: string | null
   onQuestionConsumed?: () => void
+  hideSuggestedChips?: boolean
+}
+
+function formatSessionLabel(title: string | null, updatedAt: string) {
+  const name = title?.trim() || 'New conversation'
+  const date = new Date(updatedAt).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  })
+  return `${name} · ${date}`
 }
 
 export default function ChatPanel({
@@ -22,6 +32,7 @@ export default function ChatPanel({
   hasReadyDocs = false,
   pendingQuestion = null,
   onQuestionConsumed,
+  hideSuggestedChips = false,
 }: ChatPanelProps) {
   const { data: sessions, isLoading: sessionsLoading } = useChatSessions(workspaceId)
   const createSession = useCreateChatSession(workspaceId)
@@ -36,6 +47,11 @@ export default function ChatPanel({
     useStreamChat(workspaceId, activeSessionId)
 
   const bottomRef = useRef<HTMLDivElement>(null)
+  const showInlineSuggestions =
+    !hideSuggestedChips &&
+    !!suggested?.questions.length &&
+    !isStreaming &&
+    (!messages || messages.length === 0)
 
   useEffect(() => {
     if (!activeSessionId && sessions && sessions.length > 0) {
@@ -72,22 +88,25 @@ export default function ChatPanel({
   }
 
   return (
-    <div className="flex h-[600px] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+    <div className="flex min-h-[640px] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm lg:min-h-[720px]">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div>
           <h2 className="text-sm font-semibold text-text">Ask about decisions</h2>
-          <p className="text-xs text-text-muted">Cited answers with relevance scores from your sources</p>
+          <p className="text-xs text-text-muted">
+            Streaming answers with source excerpts and relevance %
+            {sessions && sessions.length > 0 ? ` · ${sessions.length} conversation${sessions.length === 1 ? '' : 's'}` : ''}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {sessions && sessions.length > 0 && (
             <select
               value={activeSessionId ?? ''}
               onChange={(e) => setActiveSessionId(e.target.value)}
-              className="rounded-lg border border-border px-2 py-1.5 text-xs text-text outline-none"
+              className="max-w-[180px] rounded-lg border border-border px-2 py-1.5 text-xs text-text outline-none"
             >
               {sessions.map((session) => (
                 <option key={session.id} value={session.id}>
-                  {session.title ?? 'New conversation'}
+                  {formatSessionLabel(session.title, session.updated_at)}
                 </option>
               ))}
             </select>
@@ -107,15 +126,31 @@ export default function ChatPanel({
         {sessionsLoading && <LoadingSpinner label="Loading chat…" />}
 
         {!sessionsLoading && !activeSessionId && (
-          <div className="flex h-full flex-col items-center justify-center text-center">
-            <p className="text-sm text-text-muted">Ask about decisions, risks, owners, or open questions</p>
+          <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+            <p className="max-w-sm text-sm text-text-muted">
+              Ask what was decided, why, who owns next steps, or what is still unresolved — answers cite your sources.
+            </p>
             <button
               type="button"
               onClick={handleNewChat}
-              className="mt-3 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
             >
-              Start chatting
+              Ask about a decision
             </button>
+            {showInlineSuggestions && (
+              <div className="mt-2 flex max-w-md flex-wrap justify-center gap-2">
+                {suggested!.questions.map((q) => (
+                  <button
+                    key={q}
+                    type="button"
+                    onClick={() => handleSuggestedQuestion(q)}
+                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-text-muted hover:border-brand-500 hover:text-brand-700"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -127,6 +162,7 @@ export default function ChatPanel({
             role={message.role === 'user' ? 'user' : 'assistant'}
             content={message.content}
             citations={message.citations}
+            createdAt={message.created_at}
           />
         ))}
 
@@ -140,15 +176,15 @@ export default function ChatPanel({
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        {suggested && suggested.questions.length > 0 && !isStreaming && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            {suggested.questions.map((q) => (
+        {showInlineSuggestions && activeSessionId && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {suggested!.questions.map((q) => (
               <button
                 key={q}
                 type="button"
                 onClick={() => handleSuggestedQuestion(q)}
                 disabled={isStreaming}
-                className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-text-muted hover:border-brand-200 hover:text-brand-700"
+                className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-text-muted hover:border-brand-500 hover:text-brand-700"
               >
                 {q}
               </button>

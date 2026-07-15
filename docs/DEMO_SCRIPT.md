@@ -8,33 +8,35 @@ Keep the video under 3 minutes.
 
 ## 0:25-0:45 - Product
 
-> Debrief turns scattered team context into a cited decision brief: what was decided, why, who owns it, what is risky, and what is still unresolved.
+> Debrief recovers a cited Decision Brief from scattered team context: what was decided, why, who owns it, what is risky or contradictory, and what is still unresolved.
 
 ## 0:45-1:25 - Live Setup
 
-1. Open the live app
-2. Sign in with the demo account
-3. Open or create **Launch Planning**
-4. Upload files from `examples/launch-planning`
-5. Wait for documents to show **Ready**
+1. Open [https://debrief-psi.vercel.app](https://debrief-psi.vercel.app)
+2. Sign in with the demo account (`demo@debrief.app`)
+3. Open **Launch Planning**
+4. Show the uploaded files from `examples/launch-planning` (or upload if needed)
+5. Confirm documents show **Ready**
 
 ## 1:25-2:05 - Decision Brief
 
-Click **Generate brief** and show:
+Click **Generate brief** / **Regenerate brief** and show structured rows:
 
-- Key decisions
+- Key decisions — with **rationale**, **owner**, **confidence**
+- Owners roster
 - Open questions
-- Risks and conflicts
-- Important dates
-- Action items
+- Risks and conflicts (call out severity / contradiction)
+- Important dates (call out date conflicts)
+- Action items with owners
+- Source chips on a row — click one to highlight the document
 
 Say:
 
-> This is the first pass a team needs before a launch review.
+> This is the first pass a team needs before a launch review — not a generic summary.
 
-## 2:05-2:40 - Cited Chat
+## 2:05-2:40 - Cited Follow-ups
 
-Ask:
+Click **Ask** on a decision row, or type:
 
 > What did we decide about pricing and why?
 
@@ -46,7 +48,7 @@ Point out streaming answers, source citations, excerpts, and relevance scores.
 
 ## 2:40-3:00 - Technical Close
 
-> Under the hood, Debrief uses React, FastAPI, PostgreSQL with pgvector, OpenAI embeddings, and GPT-5.6 for decision briefs and cited streaming answers. Codex helped build the backend, retrieval layer, SSE streaming, UI, and deployment setup during Build Week.
+> Under the hood, Debrief uses React, FastAPI, PostgreSQL with pgvector, and OpenRouter free models for embeddings, decision briefs, and cited streaming answers. Codex helped build the backend, retrieval layer, SSE streaming, structured brief UI, and deployment setup during Build Week.
 
 End with the GitHub repo and live URL.
 
@@ -55,5 +57,6 @@ End with the GitHub repo and live URL.
 - Use 1920x1080
 - Hide browser bookmarks
 - Pre-seed the workspace before recording if ingestion is slow
-- Confirm the OpenAI model name works before recording
+- Confirm OpenRouter keys and models work before recording
 - Keep the live demo focused on one story: launch planning
+- Prefer regenerating the brief so judges see owners/rationale/sources, not flat bullets

@@ -48,3 +48,54 @@ body {
 .font-display {
   font-family: var(--font-display);
 }
+
+@keyframes home-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-brief-sheen {
+  from {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.35;
+  }
+  to {
+    transform: translateX(60%);
+    opacity: 0;
+  }
+}
+
+.home-fade-up {
+  animation: home-fade-up 0.7s ease-out both;
+}
+
+.home-fade-up-delay {
+  animation-delay: 0.12s;
+}
+
+.home-brief-sheen {
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    color-mix(in oklab, var(--color-brand-100) 45%, transparent) 50%,
+    transparent 60%
+  );
+  animation: home-brief-sheen 1.4s ease-out 0.35s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-fade-up,
+  .home-fade-up-delay,
+  .home-brief-sheen {
+    animation: none;
+  }
+}

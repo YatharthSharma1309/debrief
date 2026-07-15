@@ -21,8 +21,10 @@ export default function DocumentUpload({ workspaceId }: DocumentUploadProps) {
 
   return (
     <div className="rounded-xl border border-border bg-surface p-6">
-      <h2 className="text-lg font-semibold text-text">Upload documents</h2>
-      <p className="mt-1 text-sm text-text-muted">PDF, DOCX, or TXT - max 10MB</p>
+      <h2 className="text-lg font-semibold text-text">Upload source docs</h2>
+      <p className="mt-1 text-sm text-text-muted">
+        Notes, transcripts, and plans become Decision Brief inputs. PDF, DOCX, or TXT — max 10MB.
+      </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <input

@@ -1,5 +1,16 @@
 import { Link } from 'react-router-dom'
+import { useDocuments } from '../hooks/useDocuments'
+import { usePersistedSummary } from '../hooks/useSummary'
+import {
+  asAction,
+  asDate,
+  asDecision,
+  asQuestion,
+  asRisk,
+  type WorkspaceSummary,
+} from '../services/summary'
 import type { Workspace } from '../services/workspaces'
+import { documentStatusCounts } from './DocumentList'
 
 interface WorkspaceCardProps {
   workspace: Workspace
@@ -15,7 +26,37 @@ function formatDate(iso: string) {
   })
 }
 
+function briefCounts(brief: WorkspaceSummary) {
+  return {
+    decisions: brief.key_decisions.length,
+    questions: brief.open_questions.length,
+    risks: brief.risks.length,
+    dates: brief.important_dates.length,
+    actions: brief.action_items.length,
+  }
+}
+
+function briefPreviewLine(brief: WorkspaceSummary) {
+  const decisions = brief.key_decisions.map(asDecision)
+  const risks = brief.risks.map(asRisk)
+  const questions = brief.open_questions.map(asQuestion)
+  const first =
+    decisions[0]?.text ||
+    risks[0]?.text ||
+    questions[0]?.text ||
+    asAction(brief.action_items[0] ?? { text: '' }).text ||
+    asDate(brief.important_dates[0] ?? { label: '' }).label
+  return first || null
+}
+
 export default function WorkspaceCard({ workspace, onDelete, isDeleting }: WorkspaceCardProps) {
+  const { data: documents } = useDocuments(workspace.id)
+  const counts = documents ? documentStatusCounts(documents) : null
+  const hasReady = (counts?.ready ?? 0) > 0
+  const { data: brief } = usePersistedSummary(workspace.id, hasReady)
+  const stats = brief ? briefCounts(brief) : null
+  const preview = brief ? briefPreviewLine(brief) : null
+
   function handleDelete() {
     if (window.confirm(`Delete "${workspace.name}"? This cannot be undone.`)) {
       onDelete(workspace.id)
@@ -23,25 +64,94 @@ export default function WorkspaceCard({ workspace, onDelete, isDeleting }: Works
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+    <div className="rounded-xl border border-border bg-surface p-5 shadow-sm transition hover:border-brand-500/40">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Link
             to={`/workspaces/${workspace.id}`}
-            className="text-lg font-semibold text-text hover:text-brand-700"
+            className="font-display text-lg font-semibold text-text hover:text-brand-700"
           >
             {workspace.name}
           </Link>
-          {workspace.description && (
+          {workspace.description ? (
             <p className="mt-1 text-sm text-text-muted line-clamp-2">{workspace.description}</p>
+          ) : (
+            <p className="mt-1 text-sm text-text-muted">No description yet</p>
           )}
-          <p className="mt-3 text-xs text-text-muted">Updated {formatDate(workspace.updated_at)}</p>
+
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
+            {counts ? (
+              <>
+                <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">
+                  {counts.total} doc{counts.total === 1 ? '' : 's'}
+                </span>
+                <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-700 dark:text-emerald-300">
+                  {counts.ready} ready
+                </span>
+                {counts.processing > 0 && (
+                  <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-sky-700 dark:text-sky-300">
+                    {counts.processing} processing
+                  </span>
+                )}
+                {counts.failed > 0 && (
+                  <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-red-700 dark:text-red-300">
+                    {counts.failed} failed
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">Loading docs…</span>
+            )}
+            {brief ? (
+              <span className="rounded-md border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-brand-700">
+                Brief saved
+              </span>
+            ) : hasReady ? (
+              <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">
+                Brief not generated
+              </span>
+            ) : null}
+          </div>
+
+          {brief && (
+            <div className="mt-3 rounded-lg border border-border/80 bg-surface-muted/40 px-3 py-2.5">
+              {brief.overview && (
+                <p className="text-xs leading-snug text-text line-clamp-2">{brief.overview}</p>
+              )}
+              {preview && (
+                <p className="mt-1.5 text-[11px] text-text-muted line-clamp-1">
+                  Latest signal: {preview}
+                </p>
+              )}
+              {stats && (
+                <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-text-muted">
+                  <span>{stats.decisions} decisions</span>
+                  <span aria-hidden>·</span>
+                  <span>{stats.questions} questions</span>
+                  <span aria-hidden>·</span>
+                  <span>{stats.risks} risks</span>
+                  <span aria-hidden>·</span>
+                  <span>{stats.actions} actions</span>
+                  {stats.dates > 0 && (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span>{stats.dates} dates</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          <p className="mt-3 text-xs text-text-muted">
+            Created {formatDate(workspace.created_at)} · Updated {formatDate(workspace.updated_at)}
+          </p>
         </div>
         <button
           type="button"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-xs text-text-muted hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+          className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-xs text-text-muted hover:border-red-300 hover:text-red-600 disabled:opacity-60"
         >
           Delete
         </button>
