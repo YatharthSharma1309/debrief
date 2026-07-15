@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthShell, { DEMO_EMAIL, DEMO_PASSWORD } from '../components/AuthShell'
 import { getCurrentUser, loginUser, registerUser } from '../services/auth'
 import { useAuthStore } from '../stores/authStore'
@@ -9,20 +9,23 @@ const fieldClass =
 
 export type AuthMode = 'signin' | 'register'
 
-interface AuthPageProps {
-  mode: AuthMode
+function modeFromPath(pathname: string): AuthMode {
+  return pathname.startsWith('/register') ? 'register' : 'signin'
 }
 
-export default function AuthPage({ mode }: AuthPageProps) {
+/** Combined Sign in / Create account — mode follows /login vs /register URL. */
+export default function AuthPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const mode = modeFromPath(location.pathname)
+  const isRegister = mode === 'register'
+
   const setAuth = useAuthStore((s) => s.setAuth)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  const isRegister = mode === 'register'
 
   useEffect(() => {
     setError(null)
@@ -37,7 +40,10 @@ export default function AuthPage({ mode }: AuthPageProps) {
   }
 
   function switchMode(next: AuthMode) {
-    navigate(next === 'register' ? '/register' : '/login', { replace: true })
+    const path = next === 'register' ? '/register' : '/login'
+    if (location.pathname !== path) {
+      navigate(path, { replace: true })
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -163,11 +169,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
         </ol>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4" aria-labelledby="auth-heading">
-        <h2 id="auth-heading" className="sr-only">
-          {isRegister ? 'Create account' : 'Sign in'}
-        </h2>
-
+      <form onSubmit={handleSubmit} className="space-y-4">
         {isRegister && (
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-text">
