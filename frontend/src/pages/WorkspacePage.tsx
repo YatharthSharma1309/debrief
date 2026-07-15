@@ -134,8 +134,15 @@ export default function WorkspacePage() {
                     <h1 className="font-display text-3xl font-semibold tracking-tight text-text">
                       {workspace.name}
                     </h1>
-                    {workspace.description && (
-                      <p className="mt-2 max-w-3xl text-text-muted">{workspace.description}</p>
+                    {workspace.description ? (
+                      <p className="mt-2 max-w-3xl text-text-muted leading-relaxed">
+                        {workspace.description}
+                      </p>
+                    ) : (
+                      <p className="mt-2 max-w-3xl text-sm text-text-muted">
+                        Upload sources below, generate a Decision Brief (decisions · ₹ budget ·
+                        assumptions · metrics · risks), then verify with cited chat.
+                      </p>
                     )}
                     <div className="mt-3 flex flex-wrap gap-2 text-xs text-text-muted">
                       <span>

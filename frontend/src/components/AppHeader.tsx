@@ -7,14 +7,23 @@ export default function AppHeader() {
   const logout = useAuthStore((s) => s.logout)
 
   return (
-    <header className="border-b border-border bg-surface">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link to="/dashboard" className="text-lg font-semibold text-text hover:text-brand-700">
-          Debrief
+    <header className="border-b border-border bg-surface/90 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3.5">
+        <Link to="/dashboard" className="min-w-0">
+          <span className="font-display text-lg font-semibold text-text hover:text-brand-700">
+            Debrief
+          </span>
+          <span className="mt-0.5 block truncate text-[11px] text-text-muted">
+            Decision briefs from your docs
+          </span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          <span className="hidden text-sm text-text-muted sm:inline">{user?.email}</span>
+          {user?.email && (
+            <span className="hidden max-w-[14rem] truncate text-sm text-text-muted sm:inline">
+              {user.email}
+            </span>
+          )}
           <button
             type="button"
             onClick={logout}
