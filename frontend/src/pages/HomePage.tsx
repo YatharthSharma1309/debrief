@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
+import { useAuthStore } from '../stores/authStore'
 
 const recovered = [
   { label: 'Decisions', detail: 'What was decided and why, with owners and ₹ amounts when present' },
@@ -17,6 +18,8 @@ const stats = [
 ]
 
 export default function HomePage() {
+  const token = useAuthStore((s) => s.token)
+
   return (
     <div className="relative min-h-screen flex flex-col">
       <div className="absolute right-6 top-6 z-10">
@@ -34,26 +37,40 @@ export default function HomePage() {
             rationale, risks, date conflicts, and open loops — then verify with cited asks.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2 lg:justify-start">
-            <Link
-              to="/register"
-              className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              Generate a decision brief
-            </Link>
-            <Link
-              to="/login"
-              className="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-text hover:bg-surface-muted"
-            >
-              Sign in
-            </Link>
+            {token ? (
+              <Link
+                to="/dashboard"
+                className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
+              >
+                Open dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/register"
+                  className="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium text-text hover:bg-surface-muted"
+                >
+                  Create account
+                </Link>
+              </>
+            )}
           </div>
-          <p className="text-xs text-text-muted">
-            Demo account:{' '}
-            <span className="font-medium text-text">demo@debrief.app</span> /{' '}
-            <span className="font-medium text-text">DemoBuildWeek2026!</span>
-            <br />
-            Workspace <span className="font-medium text-text">Launch Planning</span> is pre-seeded.
-          </p>
+          {!token && (
+            <p className="text-xs text-text-muted">
+              Demo account:{' '}
+              <span className="font-medium text-text">demo@debrief.app</span> /{' '}
+              <span className="font-medium text-text">DemoBuildWeek2026!</span>
+              <br />
+              Workspace <span className="font-medium text-text">Launch Planning</span> is pre-seeded.
+              Sign in and Create account share one screen — switch with the tabs.
+            </p>
+          )}
         </div>
 
         <aside

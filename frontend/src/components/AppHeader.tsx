@@ -1,10 +1,16 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
 import { useAuthStore } from '../stores/authStore'
 
 export default function AppHeader() {
+  const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+
+  function handleSignOut() {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   return (
     <header className="border-b border-border bg-surface/90 backdrop-blur-sm">
@@ -26,7 +32,7 @@ export default function AppHeader() {
           )}
           <button
             type="button"
-            onClick={logout}
+            onClick={handleSignOut}
             className="rounded-lg border border-border px-3 py-1.5 text-sm text-text hover:bg-surface-muted"
           >
             Sign out
