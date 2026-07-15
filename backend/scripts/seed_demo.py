@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -25,6 +26,12 @@ DEMO_PASSWORD = "DemoBuildWeek2026!"
 DEMO_NAME = "Build Week Judge"
 WORKSPACE_NAME = "Launch Planning"
 EXAMPLES_DIR = REPO / "examples" / "launch-planning"
+# Re-copy + re-embed sample docs even when already ready (needed after content changes).
+FORCE_REFRESH = "--force" in sys.argv or os.environ.get("SEED_FORCE_REFRESH", "").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 
 async def seed() -> None:
@@ -80,11 +87,12 @@ async def seed() -> None:
                 )
             )
             existing = result.scalar_one_or_none()
-            if existing and existing.status == DocumentStatus.ready:
+            if existing and existing.status == DocumentStatus.ready and not FORCE_REFRESH:
                 print(f"Skip ready: {path.name}")
                 continue
 
             if existing:
+                print(f"Refreshing: {path.name}")
                 await db.delete(existing)
                 await db.commit()
 
