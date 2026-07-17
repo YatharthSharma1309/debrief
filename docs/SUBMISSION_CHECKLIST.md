@@ -21,14 +21,12 @@ Use this before clicking Submit.
 
 ## You must complete before submit
 
-- [ ] **Record demo video** (<3 min, public YouTube, **with voiceover**)
-  - Cover: what you built + how you used **Codex** + how you used **GPT-5.6**
-  - Screencast + music only = not valid
-  - Follow [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
-- [ ] Paste YouTube URL into Devpost + into [DEVPOST_SUBMISSION.md](./DEVPOST_SUBMISSION.md)
+- [x] **Demo video file generated** — `docs/demo-assets/debrief-build-week-demo.mp4` (~1:41, AI voiceover covering product + Codex + GPT-5.6)
+- [ ] **Upload video to YouTube** (Public) → paste URL into Devpost
+  - See `docs/demo-assets/README.md`
 - [ ] Run `/feedback` in your **main Codex build thread** → copy Session ID into Devpost form
-- [ ] Confirm repo is **public** (or shared with `testing@devpost.com` and `build-week-event@openai.com`)
-- [ ] Paste latest code is on `master` / GitHub (push before submit)
+  - This ID can only come from Codex — it cannot be generated in the repo
+- [ ] Confirm repo is **public**
 - [ ] Fill Devpost fields from [DEVPOST_SUBMISSION.md](./DEVPOST_SUBMISSION.md)
 - [ ] Category: **Work & Productivity**
 - [ ] Quick live smoke test as a judge:

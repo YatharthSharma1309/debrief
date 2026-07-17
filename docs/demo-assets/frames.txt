@@ -1,0 +1,11 @@
+file 'C:/Users/Yatharth/Documents/Personal_Projects/ContextAI/docs/demo-assets/frame-01-home.png'
+duration 22
+file 'C:/Users/Yatharth/Documents/Personal_Projects/ContextAI/docs/demo-assets/frame-02-dashboard.png'
+duration 28
+file 'C:/Users/Yatharth/Documents/Personal_Projects/ContextAI/docs/demo-assets/frame-03-workspace.png'
+duration 28
+file 'C:/Users/Yatharth/Documents/Personal_Projects/ContextAI/docs/demo-assets/frame-04-brief.png'
+duration 42
+file 'C:/Users/Yatharth/Documents/Personal_Projects/ContextAI/docs/demo-assets/frame-05-docs-chat.png'
+duration 35
+file 'C:/Users/Yatharth/Documents/Personal_Projects/ContextAI/docs/demo-assets/frame-05-docs-chat.png'

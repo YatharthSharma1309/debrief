@@ -1,0 +1,15 @@
+Teams do not forget because they lack documents. They forget because decisions are buried across docs, meeting notes, transcripts, and launch checklists.
+
+Debrief recovers a cited Decision Brief from scattered team context: what was decided, why, who owns it, what is risky or contradictory, and what is still unresolved.
+
+Here is the live demo. Sign in with the Build Week demo account, then open the Launch Planning workspace. Five sample docs are already uploaded and ready.
+
+Generate the Decision Brief. Debrief recovers key decisions with rationale and owners, budget in rupees, assumptions, metrics, risks, open questions, and date conflicts — each with source citations. This is the first pass a team needs before a launch review — not a generic summary.
+
+Ask a follow-up: what did we decide about pricing and why? Answers stream with citations, excerpts, and relevance scores so you can verify the claim in the original docs.
+
+Under the hood, Debrief uses React, FastAPI, PostgreSQL with pgvector, and OpenRouter free models for embeddings, decision briefs, and cited streaming chat.
+
+I built this during OpenAI Build Week with Codex powered by GPT-5.6. Codex and GPT-5.6 helped scaffold the FastAPI RAG backend, design the Decision Brief schema, wire SSE streaming and citations, and ship the UI and deployment. Codex and GPT-5.6 were my build partners. OpenRouter free models keep the live demo free for judges to test.
+
+Try it at debrief-psi.vercel.app. The code is on GitHub at YatharthSharma1309 slash debrief.
