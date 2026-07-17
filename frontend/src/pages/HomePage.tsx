@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import SiteFooter from '../components/SiteFooter'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAuthStore } from '../stores/authStore'
 
@@ -6,7 +7,7 @@ const recovered = [
   { label: 'Decisions', detail: 'What was decided and why, with owners and ₹ amounts when present' },
   { label: 'Owners', detail: 'Who owns pricing, launch, and approval so nothing stalls quietly' },
   { label: 'Risks', detail: 'Conflicts, blockers, and contradictions between sources' },
-  { label: 'Open loops', detail: 'Unresolved questions, date mismatches, and packaging gaps' },
+  { label: 'Unresolved', detail: 'Open questions, date mismatches, and packaging gaps' },
 ]
 
 const stats = [
@@ -21,20 +22,20 @@ export default function HomePage() {
   const token = useAuthStore((s) => s.token)
 
   return (
-    <div className="relative min-h-screen flex flex-col">
-      <div className="absolute right-6 top-6 z-10">
+    <div className="relative flex min-h-screen flex-col">
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
         <ThemeToggle />
       </div>
 
-      <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 py-14 lg:grid-cols-2 lg:gap-12 lg:py-16">
-        <div className="home-fade-up space-y-6 text-center lg:text-left">
+      <div className="mx-auto grid w-full min-w-0 max-w-6xl flex-1 items-center gap-8 px-4 py-12 sm:gap-10 sm:px-6 sm:py-14 lg:grid-cols-2 lg:gap-12 lg:py-16">
+        <div className="home-fade-up min-w-0 space-y-5 text-center sm:space-y-6 lg:text-left">
           <p className="font-display text-sm font-semibold tracking-wide text-brand-700">Debrief</p>
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-text sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-text sm:text-4xl lg:text-[3.25rem] lg:leading-[1.1]">
             Recover decisions buried in scattered team docs
           </h1>
-          <p className="mx-auto max-w-xl text-lg text-text-muted leading-relaxed lg:mx-0">
-            Upload docs, notes, and transcripts. Get a cited Decision Brief — pricing in ₹, owners,
-            rationale, risks, date conflicts, and open loops — then verify with cited asks.
+          <p className="mx-auto max-w-xl text-base text-text-muted leading-relaxed sm:text-lg lg:mx-0">
+            Upload scattered team docs. Recover a cited Decision Brief: decisions, rationale, owners,
+            risks, and unresolved items — then verify with grounded questions.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2 lg:justify-start">
             {token ? (
@@ -74,14 +75,15 @@ export default function HomePage() {
         </div>
 
         <aside
-          className="home-fade-up home-fade-up-delay relative overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
+          id="brief"
+          className="home-fade-up home-fade-up-delay relative min-w-0 scroll-mt-8 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
           aria-label="Sample Decision Brief from Launch Planning workspace"
         >
           <div className="home-brief-sheen pointer-events-none absolute inset-0" aria-hidden />
 
           <div className="relative border-b border-border px-4 py-3 sm:px-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
+              <div className="min-w-0">
                 <p className="font-display text-sm font-semibold text-text">Decision Brief</p>
                 <p className="mt-0.5 text-[11px] text-text-muted">
                   Launch Planning · Atlas · 5 ready sources · INR pricing
@@ -91,20 +93,22 @@ export default function HomePage() {
                 Saved brief
               </span>
             </div>
-            <div className="mt-3 grid grid-cols-5 gap-1.5">
+            <div className="mt-3 grid grid-cols-3 gap-1.5 sm:grid-cols-5">
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-md border border-border/80 bg-surface-muted/50 px-1 py-1.5 text-center"
+                  className="min-w-0 rounded-md border border-border bg-surface-muted px-1 py-1.5 text-center"
                 >
                   <p className="font-display text-sm font-semibold text-brand-700">{stat.value}</p>
-                  <p className="text-[9px] uppercase tracking-wide text-text-muted">{stat.label}</p>
+                  <p className="truncate text-[9px] uppercase tracking-wide text-text-muted">
+                    {stat.label}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative max-h-[min(34rem,70vh)] space-y-3 overflow-y-auto px-4 py-3.5 sm:px-5">
+          <div className="relative space-y-3 px-4 py-3.5 sm:px-5">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">Overview</p>
               <p className="mt-1.5 text-sm leading-relaxed text-text">
@@ -115,7 +119,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-md border border-border bg-surface-muted/50 px-3 py-2.5">
+            <div className="rounded-md border border-border bg-surface-muted px-3 py-2.5">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                 Pricing recovered (₹)
               </p>
@@ -126,7 +130,7 @@ export default function HomePage() {
                   ['Team', '₹6,499/mo'],
                   ['Enterprise', 'Custom'],
                 ].map(([plan, price]) => (
-                  <div key={plan} className="rounded border border-border/70 bg-surface px-2 py-1.5">
+                  <div key={plan} className="rounded border border-border bg-surface px-2 py-1.5">
                     <p className="text-[10px] text-text-muted">{plan}</p>
                     <p className="text-xs font-semibold text-text">{price}</p>
                   </div>
@@ -146,7 +150,7 @@ export default function HomePage() {
               ].map(([name, owns]) => (
                 <span
                   key={name}
-                  className="rounded-md border border-border bg-surface-muted/60 px-2 py-1 text-[10px] text-text"
+                  className="rounded-md border border-border bg-surface-muted px-2 py-1 text-[10px] text-text"
                 >
                   <span className="font-semibold">{name}</span>
                   <span className="text-text-muted"> · {owns}</span>
@@ -154,179 +158,48 @@ export default function HomePage() {
               ))}
             </div>
 
-            <ul className="space-y-2">
-              <li className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Decision · approved
-                  </p>
-                  <span className="text-[10px] font-medium text-brand-700">Ask →</span>
-                </div>
-                <p className="mt-1 text-sm leading-snug text-text">
-                  Ship Pro at ₹2,499/user/mo and Team at ₹6,499; no annual discount at launch.
-                </p>
-                <p className="mt-1 text-xs leading-snug text-text-muted">
-                  Why: sales-led pricing slowed beta trials; ₹ pricing removes FX confusion for local buyers.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 dark:text-emerald-200">
-                    approved
-                  </span>
-                  <span className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
-                    Owner: Arjun
-                  </span>
-                  <span className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
-                    Confidence: high
-                  </span>
-                  <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
-                    02-pricing-notes.txt
-                  </span>
-                  <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
-                    03-launch-meeting-transcript.txt
-                  </span>
-                </div>
-              </li>
-
-              <li className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Decision · deferred
-                  </p>
-                  <span className="text-[10px] font-medium text-brand-700">Ask →</span>
-                </div>
-                <p className="mt-1 text-sm leading-snug text-text">
-                  Do not announce Enterprise / SSO pricing at launch.
-                </p>
-                <p className="mt-1 text-xs leading-snug text-text-muted">
-                  Why: most beta demand is &lt;20-person teams; SSO is not ready.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:text-amber-200">
-                    deferred
-                  </span>
-                  <span className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
-                    Owner: Maya
-                  </span>
-                  <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
-                    01-product-requirements.txt
-                  </span>
-                  <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
-                    03-launch-meeting-transcript.txt
-                  </span>
-                </div>
-              </li>
-
-              <li className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Risk · contradiction
-                  </p>
-                  <span className="text-[10px] font-medium text-brand-700">Ask →</span>
-                </div>
-                <p className="mt-1 text-sm leading-snug text-text">
-                  Launch date is Aug 12 in the transcript and Aug 19 on the checklist.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:text-amber-200">
-                    Severity: high
-                  </span>
-                  <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
-                    03-launch-meeting-transcript.txt
-                  </span>
-                  <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
-                    05-launch-checklist.txt
-                  </span>
-                </div>
-              </li>
-
-              <li className="grid gap-2 sm:grid-cols-2">
-                <div className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">Dates</p>
-                  <ul className="mt-1.5 space-y-1 text-xs text-text">
-                    <li>
-                      Public launch · <span className="font-medium">Aug 12</span>
-                      <span className="text-text-muted"> · conflicts Aug 19</span>
-                    </li>
-                    <li>
-                      Pricing copy due · <span className="font-medium">Jul 24</span>
-                      <span className="text-text-muted"> · Arjun</span>
-                    </li>
-                    <li>
-                      Pricing meeting · <span className="font-medium">Jul 9</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Actions
-                  </p>
-                  <ul className="mt-1.5 space-y-1 text-xs text-text">
-                    <li>Arjun · INR page + checkout QA · open</li>
-                    <li>Sofia · launch checklist · open</li>
-                    <li>Maya · final approval · blocked on date</li>
-                  </ul>
-                </div>
-              </li>
-
-              <li className="grid gap-2 sm:grid-cols-2">
-                <div className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Assumptions
-                  </p>
-                  <ul className="mt-1.5 space-y-1 text-xs text-text">
-                    <li>Beta users are small teams / founders</li>
-                    <li>India catalog is ₹-only at launch</li>
-                  </ul>
-                </div>
-                <div className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                    Metrics
-                  </p>
-                  <ul className="mt-1.5 space-y-1 text-xs text-text">
-                    <li>Onboarding &lt; 10 min · Maya</li>
-                    <li>60% create 2nd doc in week 1</li>
-                  </ul>
-                </div>
-              </li>
-
-              <li className="rounded-md border border-border/80 bg-surface-muted/40 px-3 py-2.5">
+            <div className="rounded-md border border-border bg-surface-muted px-3 py-2.5">
+              <div className="flex items-start justify-between gap-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                  Open questions
+                  Decision · approved
                 </p>
-                <ul className="mt-1.5 space-y-1.5 text-sm text-text">
-                  <li className="leading-snug">
-                    Free plan: 3 projects or 5?
-                    <span className="ml-1 text-[10px] text-text-muted">02-pricing-notes.txt</span>
-                  </li>
-                  <li className="leading-snug">
-                    Does Team at ₹6,499 include priority support at launch?
-                    <span className="ml-1 text-[10px] text-text-muted">02-pricing-notes.txt</span>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-
-            <div className="rounded-md border border-dashed border-border px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
-                Cited follow-up
+                <span className="text-[10px] font-medium text-brand-700">Ask →</span>
+              </div>
+              <p className="mt-1 text-sm leading-snug text-text">
+                Ship Pro at ₹2,499/user/mo and Team at ₹6,499; no annual discount at launch.
               </p>
-              <p className="mt-1 text-xs text-text">
-                “What did we decide about pricing in rupees and why?”
+              <p className="mt-1 text-xs leading-snug text-text-muted">
+                Why: sales-led pricing slowed beta trials; ₹ pricing removes FX confusion for local buyers.
               </p>
-              <p className="mt-1.5 text-[10px] leading-relaxed text-text-muted">
-                <span className="font-medium text-brand-700">91% match</span>
-                {' · '}
-                02-pricing-notes.txt
-                {' · '}
-                “Pro: ₹2,499 per user per month · Team: ₹6,499 · Free: ₹0”
-              </p>
+              <div className="mt-2 flex flex-wrap gap-1">
+                <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
+                  approved
+                </span>
+                <span className="rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
+                  Owner: Arjun
+                </span>
+                <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-text-muted">
+                  02-pricing-notes.txt
+                </span>
+              </div>
             </div>
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface via-surface/90 to-transparent" />
+          </div>
+
+          <div className="relative border-t border-border bg-surface px-4 py-3 sm:px-5">
+            <Link
+              to={token ? '/dashboard' : '/login'}
+              className="text-xs font-medium text-brand-700 hover:underline"
+            >
+              Open Launch Planning demo for the full brief →
+            </Link>
           </div>
         </aside>
       </div>
 
-      <section className="border-t border-border bg-surface/40">
-        <div className="mx-auto max-w-6xl px-6 py-14">
+      <section id="recovers" className="scroll-mt-8 border-t border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
           <h2 className="font-display text-2xl font-semibold tracking-tight text-text">
             What Debrief recovers
           </h2>
@@ -345,9 +218,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-6 text-center text-xs text-text-muted">
-        Built with Codex for OpenAI Build Week · Runtime: OpenRouter free models · Work & Productivity
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

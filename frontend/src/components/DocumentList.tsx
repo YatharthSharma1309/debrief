@@ -9,10 +9,11 @@ interface DocumentListProps {
 }
 
 const statusStyles: Record<Document['status'], string> = {
-  pending: 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  processing: 'border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300',
-  ready: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-  failed: 'border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300',
+  pending: 'border-border bg-surface text-text-muted',
+  processing: 'border-sky-600/40 bg-surface text-sky-800 dark:border-sky-500/40 dark:text-sky-300',
+  ready:
+    'border-border bg-surface text-brand-700 dark:border-brand-500/40 dark:bg-brand-50 dark:text-brand-700',
+  failed: 'border-red-500/40 bg-surface text-red-700 dark:text-red-400',
 }
 
 const statusLabels: Record<Document['status'], string> = {
@@ -58,6 +59,9 @@ export default function DocumentList({
   }
 
   const counts = documentStatusCounts(documents)
+  const timeline = [...documents].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  )
 
   return (
     <div className="space-y-3">
@@ -65,48 +69,70 @@ export default function DocumentList({
         <span className="rounded-md border border-border px-2 py-1 text-text-muted">
           {counts.total} total
         </span>
-        <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-emerald-700 dark:text-emerald-300">
+        <span className="rounded-md border border-border bg-surface px-2 py-1 font-medium text-brand-700">
           {counts.ready} ready
         </span>
         {counts.processing > 0 && (
-          <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-sky-700 dark:text-sky-300">
+          <span className="rounded-md border border-border bg-surface px-2 py-1 text-sky-800 dark:text-sky-300">
             {counts.processing} processing
           </span>
         )}
         {counts.failed > 0 && (
-          <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-1 text-red-700 dark:text-red-300">
+          <span className="rounded-md border border-border bg-surface px-2 py-1 text-red-700 dark:text-red-400">
             {counts.failed} failed
           </span>
         )}
       </div>
+
+      {timeline.length > 1 && (
+        <div className="rounded-xl border border-border bg-surface-muted px-4 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+            Ingestion timeline
+          </p>
+          <ol className="mt-2 space-y-1.5 border-l border-border pl-3">
+            {timeline.map((doc) => (
+              <li key={`tl-${doc.id}`} className="relative text-xs text-text-muted">
+                <span className="absolute -left-[0.85rem] top-1.5 size-1.5 rounded-full bg-brand-600" />
+                <span className="font-medium text-text">{formatDate(doc.created_at)}</span>
+                {' · '}
+                <span className="text-text">{doc.filename}</span>
+                {' · '}
+                <span>{statusLabels[doc.status]}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
         {documents.map((doc) => (
           <li
             key={doc.id}
             id={`doc-${doc.id}`}
-            className={`flex items-start justify-between gap-4 px-4 py-3.5 transition ${
+            className={`flex min-w-0 flex-col gap-2 px-3 py-3.5 transition sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:px-4 ${
               highlightedDocumentId === doc.id
                 ? 'bg-brand-600/10 ring-2 ring-inset ring-brand-500/50'
                 : ''
             }`}
           >
             <div className="min-w-0">
-              <p className="truncate font-medium text-text">{doc.filename}</p>
-              <p className="mt-1 text-xs text-text-muted">
-                {doc.file_type.toUpperCase()} · {formatFileSize(doc.file_size)} · uploaded{' '}
+              <p className="break-all font-medium text-text sm:truncate">{doc.filename}</p>
+              <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                <span className="font-medium text-text">{doc.file_type.toUpperCase()}</span>
+                {' · '}
+                {formatFileSize(doc.file_size)}
+              </p>
+              <p className="text-[11px] text-text-muted">
                 {formatDate(doc.created_at)}
-                {doc.updated_at !== doc.created_at && (
-                  <> · updated {formatDate(doc.updated_at)}</>
-                )}
+                {doc.updated_at !== doc.created_at && <> · updated {formatDate(doc.updated_at)}</>}
               </p>
               {doc.status === 'failed' && doc.error_message && (
                 <p className="mt-2 text-xs text-red-600 dark:text-red-400">{doc.error_message}</p>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 flex-wrap items-center gap-2 self-start">
               <span
-                className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusStyles[doc.status]}`}
+                className={`rounded-full border px-2 py-0.5 text-[11px] font-medium sm:px-2.5 sm:text-xs ${statusStyles[doc.status]}`}
               >
                 {statusLabels[doc.status]}
               </span>
@@ -116,7 +142,7 @@ export default function DocumentList({
                   if (window.confirm(`Delete "${doc.filename}"?`)) onDelete(doc.id)
                 }}
                 disabled={isDeleting}
-                className="rounded-lg border border-border px-2.5 py-1 text-xs text-text-muted hover:border-red-300 hover:text-red-600 disabled:opacity-60"
+                className="rounded-lg border border-transparent px-2 py-1 text-[11px] text-text-muted hover:border-red-200 hover:text-red-600 disabled:opacity-60 sm:border-border sm:px-2.5 sm:text-xs"
               >
                 Delete
               </button>

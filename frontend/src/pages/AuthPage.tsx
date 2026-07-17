@@ -94,7 +94,7 @@ export default function AuthPage() {
       <div
         role="tablist"
         aria-label="Authentication"
-        className="mb-5 grid grid-cols-2 rounded-xl border border-border bg-surface-muted/70 p-1"
+        className="mb-5 grid grid-cols-2 rounded-xl border border-border bg-surface-muted p-1"
       >
         <button
           type="button"
@@ -125,19 +125,19 @@ export default function AuthPage() {
       </div>
 
       {!isRegister ? (
-        <div className="mb-5 rounded-xl border border-border bg-surface-muted/60 px-4 py-3">
+        <div className="mb-4 rounded-xl border border-border bg-surface-muted px-3 py-2.5 sm:mb-5 sm:px-4 sm:py-3">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <div>
+            <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-700">
                 Build Week demo
               </p>
               <p className="mt-1 text-xs leading-relaxed text-text-muted">
-                Pre-seeded workspace <span className="font-medium text-text">Launch Planning</span>{' '}
-                with ₹ pricing, owners, and a date conflict.
+                Pre-seeded <span className="font-medium text-text">Launch Planning</span> — ₹ pricing,
+                owners, date conflict.
               </p>
-              <p className="mt-1.5 font-mono text-[11px] text-text">
+              <p className="mt-1 font-mono text-[11px] text-text">
                 {DEMO_EMAIL}
-                <br />
+                <span className="text-text-muted"> · </span>
                 {DEMO_PASSWORD}
               </p>
             </div>
@@ -151,7 +151,7 @@ export default function AuthPage() {
           </div>
         </div>
       ) : (
-        <ol className="mb-5 space-y-2 rounded-xl border border-border bg-surface-muted/60 px-4 py-3 text-xs text-text-muted">
+        <ol className="mb-5 space-y-2 rounded-xl border border-border bg-surface-muted px-4 py-3 text-xs text-text-muted">
           <li className="flex gap-2">
             <span className="font-semibold text-brand-700">1</span>
             <span>

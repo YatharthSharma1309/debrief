@@ -1,5 +1,6 @@
 from app.models.chat import ChatMessage, ChatSession, MessageRole
 from app.models.document import Document, DocumentChunk, DocumentStatus, EMBEDDING_DIMENSIONS
+from app.models.member import WorkspaceMember, WorkspaceRole
 from app.models.user import User
 from app.models.workspace import Workspace
 
@@ -13,4 +14,6 @@ __all__ = [
     "MessageRole",
     "User",
     "Workspace",
+    "WorkspaceMember",
+    "WorkspaceRole",
 ]

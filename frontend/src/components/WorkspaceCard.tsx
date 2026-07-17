@@ -63,97 +63,98 @@ export default function WorkspaceCard({ workspace, onDelete, isDeleting }: Works
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 shadow-sm transition hover:border-brand-500/40">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <Link
-            to={`/workspaces/${workspace.id}`}
-            className="font-display text-lg font-semibold text-text hover:text-brand-700"
-          >
-            {workspace.name}
-          </Link>
-          {workspace.description ? (
-            <p className="mt-1 text-sm text-text-muted line-clamp-2">{workspace.description}</p>
-          ) : (
-            <p className="mt-1 text-sm text-text-muted">No description yet</p>
-          )}
+    <div className="min-w-0 rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-brand-500/40 sm:p-5">
+      <Link
+        to={`/workspaces/${workspace.id}`}
+        className="block min-w-0 font-display text-lg font-semibold text-text hover:text-brand-700"
+      >
+        {workspace.name}
+      </Link>
 
-          <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
-            {counts ? (
-              <>
-                <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">
-                  {counts.total} doc{counts.total === 1 ? '' : 's'}
-                </span>
-                <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-700 dark:text-emerald-300">
-                  {counts.ready} ready
-                </span>
-                {counts.processing > 0 && (
-                  <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-sky-700 dark:text-sky-300">
-                    {counts.processing} processing
-                  </span>
-                )}
-                {counts.failed > 0 && (
-                  <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-red-700 dark:text-red-300">
-                    {counts.failed} failed
-                  </span>
-                )}
-              </>
-            ) : (
-              <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">Loading docs…</span>
+      {workspace.description ? (
+        <p className="mt-1 text-sm text-text-muted line-clamp-2">{workspace.description}</p>
+      ) : (
+        <p className="mt-1 text-sm text-text-muted">No description yet</p>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
+        {counts ? (
+          <>
+            <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">
+              {counts.total} doc{counts.total === 1 ? '' : 's'}
+            </span>
+            <span className="rounded-md border border-border bg-surface px-2 py-0.5 font-medium text-brand-700">
+              {counts.ready} ready
+            </span>
+            {counts.processing > 0 && (
+              <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-sky-700 dark:text-sky-300">
+                {counts.processing} processing
+              </span>
             )}
-            {brief ? (
-              <span className="rounded-md border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-brand-700">
-                Brief saved
+            {counts.failed > 0 && (
+              <span className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-red-700 dark:text-red-300">
+                {counts.failed} failed
               </span>
-            ) : hasReady ? (
-              <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">
-                Brief not generated
-              </span>
-            ) : null}
-          </div>
+            )}
+          </>
+        ) : (
+          <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">Loading docs…</span>
+        )}
+        {brief ? (
+          <span className="rounded-md border border-brand-500/30 bg-brand-600/10 px-2 py-0.5 text-brand-700">
+            Brief saved
+          </span>
+        ) : hasReady ? (
+          <span className="rounded-md border border-border px-2 py-0.5 text-text-muted">
+            Brief not generated
+          </span>
+        ) : null}
+      </div>
 
-          {brief && (
-            <div className="mt-3 rounded-lg border border-border/80 bg-surface-muted/40 px-3 py-2.5">
-              {brief.overview && (
-                <p className="text-xs leading-snug text-text line-clamp-2">{brief.overview}</p>
-              )}
-              {preview && (
-                <p className="mt-1.5 text-[11px] text-text-muted line-clamp-1">
-                  Latest signal: {preview}
-                </p>
-              )}
-              {stats && (
-                <div className="mt-2 grid grid-cols-4 gap-1 text-center text-[10px]">
-                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
-                    <span className="font-semibold text-brand-700">{stats.decisions}</span>
-                    <span className="block text-text-muted">decisions</span>
+      {brief && (
+        <div className="mt-3 rounded-lg border border-border bg-surface-muted px-3 py-2.5">
+          {brief.overview && (
+            <p className="text-xs leading-snug text-text line-clamp-2">{brief.overview}</p>
+          )}
+          {preview && (
+            <p className="mt-1.5 text-[11px] text-text-muted line-clamp-1">
+              Latest signal: {preview}
+            </p>
+          )}
+          {stats && (
+            <div className="mt-2 grid grid-cols-4 gap-1.5 text-center text-[10px]">
+              {(
+                [
+                  ['decisions', stats.decisions],
+                  ['budget', stats.budget],
+                  ['assumptions', stats.assumptions],
+                  ['risks', stats.risks],
+                ] as const
+              ).map(([label, value]) => (
+                <span
+                  key={label}
+                  className="min-w-0 rounded border border-border bg-surface px-1 py-1"
+                >
+                  <span className="font-semibold text-brand-700">{value}</span>
+                  <span className="block truncate text-[9px] uppercase tracking-wide text-text-muted">
+                    {label}
                   </span>
-                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
-                    <span className="font-semibold text-brand-700">{stats.budget}</span>
-                    <span className="block text-text-muted">budget</span>
-                  </span>
-                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
-                    <span className="font-semibold text-brand-700">{stats.assumptions}</span>
-                    <span className="block text-text-muted">assumptions</span>
-                  </span>
-                  <span className="rounded border border-border/70 bg-surface px-1 py-1">
-                    <span className="font-semibold text-brand-700">{stats.risks}</span>
-                    <span className="block text-text-muted">risks</span>
-                  </span>
-                </div>
-              )}
+                </span>
+              ))}
             </div>
           )}
-
-          <p className="mt-3 text-xs text-text-muted">
-            Created {formatDate(workspace.created_at)} · Updated {formatDate(workspace.updated_at)}
-          </p>
         </div>
+      )}
+
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-text-muted">
+        <p>
+          Created {formatDate(workspace.created_at)} · Updated {formatDate(workspace.updated_at)}
+        </p>
         <button
           type="button"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-xs text-text-muted hover:border-red-300 hover:text-red-600 disabled:opacity-60"
+          className="shrink-0 text-text-muted hover:text-red-600 disabled:opacity-60"
         >
           Delete
         </button>

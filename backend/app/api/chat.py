@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, get_owned_workspace
+from app.api.deps import get_accessible_workspace, get_current_user
 from app.database import get_db
 from app.models import ChatSession, User, Workspace
 from app.schemas.chat import (
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/workspaces/{workspace_id}/chat")
 
 async def get_owned_session(
     session_id: uuid.UUID,
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ChatSession:
@@ -32,7 +32,7 @@ async def get_owned_session(
 
 @router.get("/sessions", response_model=list[ChatSessionResponse])
 async def list_chat_sessions(
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -42,7 +42,7 @@ async def list_chat_sessions(
 @router.post("/sessions", response_model=ChatSessionResponse, status_code=status.HTTP_201_CREATED)
 async def create_chat_session(
     data: ChatSessionCreate,
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -61,7 +61,7 @@ async def list_chat_messages(
 async def send_chat_message(
     data: SendMessageRequest,
     session: ChatSession = Depends(get_owned_session),
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
 ):
     return StreamingResponse(

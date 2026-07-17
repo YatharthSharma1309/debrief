@@ -1,18 +1,16 @@
 # Screenshots
 
-Capture these before Build Week submission. Checklist: [LAUNCH_CHECKLIST.md](../docs/LAUNCH_CHECKLIST.md).
+Build Week / Devpost gallery images. Prefer **1440×900** or **1920×1080**.
 
-Use the **Launch Planning** demo (upload files from `examples/launch-planning/`).
+Captured from the live demo with account `demo@debrief.app` / workspace **Launch Planning**.
 
 | File | Screen |
 |------|--------|
-| `01-landing.png` | Home page (light) |
-| `02-landing-dark.png` | Home page (dark mode) |
-| `03-dashboard.png` | Workspace dashboard |
-| `04-workspace.png` | Workspace with uploaded docs |
-| `05-decision-brief.png` | Generated Decision Brief |
-| `06-chat-streaming.png` | Streaming cited answer |
-| `07-citations.png` | Citations with relevance % |
-| `08-login.png` | Login page |
+| `01-landing.png` | Home page |
+| `02-landing-dark.png` | Home / app dark mode |
+| `03-dashboard.png` | Dashboard with workspaces |
+| `05-decision-brief.png` | Launch Planning Decision Brief |
 
-**Tip:** 1440×900 or 1920×1080. Zoom in on citations — that is the wow moment for judges.
+**Tip for final Devpost upload:** Re-capture at full desktop width in your browser (F12 → responsive → 1440×900) so gallery images look crisp. Zoom in on citations for the wow moment.
+
+Checklist: [LAUNCH_CHECKLIST.md](../docs/LAUNCH_CHECKLIST.md) · Submission: [SUBMISSION_CHECKLIST.md](../docs/SUBMISSION_CHECKLIST.md)

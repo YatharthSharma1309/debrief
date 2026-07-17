@@ -5,7 +5,9 @@ import AppHeader from '../components/AppHeader'
 import DocumentList, { documentStatusCounts } from '../components/DocumentList'
 import DocumentUpload from '../components/DocumentUpload'
 import LoadingSpinner from '../components/LoadingSpinner'
+import PageShell from '../components/PageShell'
 import ChatPanel from '../components/ChatPanel'
+import WorkspaceMembersPanel from '../components/WorkspaceMembersPanel'
 import WorkspaceSummaryCard from '../components/WorkspaceSummaryCard'
 import { useDeleteDocument, useDocuments } from '../hooks/useDocuments'
 import { useUpdateWorkspace } from '../hooks/useWorkspaces'
@@ -15,6 +17,7 @@ import { useAuthStore } from '../stores/authStore'
 export default function WorkspacePage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const token = useAuthStore((s) => s.token)
+  const user = useAuthStore((s) => s.user)
   const updateWorkspace = useUpdateWorkspace(workspaceId!)
   const { data: documents, isLoading: docsLoading, error: docsError } = useDocuments(workspaceId!)
   const counts = documents ? documentStatusCounts(documents) : null
@@ -66,10 +69,8 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <AppHeader />
-
-      <main className="mx-auto max-w-6xl px-6 py-8">
+    <PageShell header={<AppHeader />}>
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 pb-10 sm:px-6 sm:py-8 sm:pb-12">
         <Link to="/dashboard" className="text-sm text-brand-600 hover:text-brand-700">
           ← All workspaces
         </Link>
@@ -129,13 +130,13 @@ export default function WorkspacePage() {
               </form>
             ) : (
               <>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h1 className="font-display text-3xl font-semibold tracking-tight text-text">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h1 className="font-display text-2xl font-semibold tracking-tight text-text sm:text-3xl">
                       {workspace.name}
                     </h1>
                     {workspace.description ? (
-                      <p className="mt-2 max-w-3xl text-text-muted leading-relaxed">
+                      <p className="mt-2 max-w-3xl text-sm text-text-muted leading-relaxed sm:text-base">
                         {workspace.description}
                       </p>
                     ) : (
@@ -159,7 +160,7 @@ export default function WorkspacePage() {
                           <span aria-hidden>·</span>
                           <span>{counts.total} documents</span>
                           <span aria-hidden>·</span>
-                          <span className="text-emerald-700 dark:text-emerald-300">{counts.ready} ready</span>
+                          <span className="font-medium text-brand-700">{counts.ready} ready</span>
                           {counts.processing > 0 && (
                             <>
                               <span aria-hidden>·</span>
@@ -179,7 +180,7 @@ export default function WorkspacePage() {
                   <button
                     type="button"
                     onClick={startEditing}
-                    className="rounded-lg border border-border px-3 py-1.5 text-sm text-text hover:bg-surface-muted"
+                    className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-sm text-text hover:bg-surface-muted"
                   >
                     Edit
                   </button>
@@ -187,6 +188,7 @@ export default function WorkspacePage() {
 
                 <WorkspaceSummaryCard
                   workspaceId={workspaceId!}
+                  workspaceName={workspace.name}
                   hasReadyDocs={hasReadyDocs}
                   readyDocCount={counts?.ready ?? 0}
                   documents={documents ?? []}
@@ -194,19 +196,26 @@ export default function WorkspacePage() {
                   onJumpToDocument={jumpToDocument}
                 />
 
-                <section className="grid gap-6 lg:grid-cols-2">
-                  <div className="space-y-5">
+                <WorkspaceMembersPanel
+                  workspaceId={workspaceId!}
+                  canManage={!!user && user.id === workspace.user_id}
+                />
+
+                <section className="grid min-w-0 gap-6 lg:grid-cols-2">
+                  <div className="min-w-0 space-y-5">
                     <DocumentUpload workspaceId={workspaceId!} />
 
                     <div>
                       <h2 className="text-sm font-medium uppercase tracking-wide text-text-muted">
                         Documents
                       </h2>
-                      <div className="mt-3">
+                      <div className="mt-3 min-w-0">
                         {docsLoading && <LoadingSpinner label="Loading documents…" />}
                         {docsError && (
                           <p className="text-sm text-red-600">
-                            {docsError instanceof Error ? docsError.message : 'Failed to load documents'}
+                            {docsError instanceof Error
+                              ? docsError.message
+                              : 'Failed to load documents'}
                           </p>
                         )}
                         {documents && (
@@ -221,7 +230,7 @@ export default function WorkspacePage() {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <ChatPanel
                       workspaceId={workspaceId!}
                       hasReadyDocs={hasReadyDocs}
@@ -235,7 +244,7 @@ export default function WorkspacePage() {
             )}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </PageShell>
   )
 }

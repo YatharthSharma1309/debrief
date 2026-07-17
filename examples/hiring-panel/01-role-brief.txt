@@ -1,0 +1,21 @@
+# Hiring panel — Senior Backend Engineer (India)
+
+Role: Senior Backend Engineer, Bangalore preferred (remote OK within IST)
+Compensation band (INR, annual CTC):
+- L4: ₹28L–₹34L
+- L5: ₹36L–₹42L
+Openings: 1 filled by August 30, 2026 if possible
+
+Decision (approved):
+Bar is production systems experience (Python/Go), ownership of on-call, and clear written design samples. No "AI buzzword" screens — evaluate systems judgment.
+
+Owner:
+Anika (Eng Manager) owns the loop; Rohan (Recruiter) owns pipeline; Vikram (Staff Eng) owns systems interview.
+
+Assumptions:
+- Offer approvals under ₹38L can clear within 48h via Anika + People Ops.
+- Above ₹38L requires Kabir VP sign-off.
+
+Open questions:
+- Remote-only candidates from non-IST zones — allowed or not?
+- Do we allow contractor-to-FTE conversion for current vendor engineers?

@@ -2,7 +2,7 @@
 
 > Recover decisions buried in scattered team docs.
 
-Built with [Codex](https://openai.com/codex/) for [OpenAI Build Week](https://openai.devpost.com/) · Runtime powered by **OpenRouter free models** · Work & Productivity
+Built with [Codex](https://openai.com/codex/) + **GPT-5.6** for [OpenAI Build Week](https://openai.devpost.com/) · Runtime powered by **OpenRouter free models** · Work & Productivity
 
 **Repo:** [github.com/YatharthSharma1309/debrief](https://github.com/YatharthSharma1309/debrief)
 
@@ -143,19 +143,43 @@ App: http://localhost:5173
 
 ## OpenAI Build Week
 
-**Track:** Work & Productivity
+**Track:** Work & Productivity  
+**Deadline:** Tuesday, July 21, 2026, 5:00 PM PT · [Submit on Devpost](https://openai.devpost.com/)
 
-**Positioning:** Decision recovery for launch/review — cited decisions, rationale, owners, risks, and open loops from scattered team docs. Built with Codex; inference runs on OpenRouter free models so demos stay $0 to operate. See [docs/COMPETITIVE_LANDSCAPE.md](docs/COMPETITIVE_LANDSCAPE.md).
+**Positioning:** Decision recovery for launch/review — cited decisions, rationale, owners, risks, and open loops from scattered team docs. See [docs/COMPETITIVE_LANDSCAPE.md](docs/COMPETITIVE_LANDSCAPE.md).
 
-### Built with Codex
+### Built with Codex + GPT-5.6
 
-Codex (via Cursor) accelerated FastAPI scaffolding, pgvector retrieval, SSE streaming, schema design, OpenRouter wiring, deployment config, and packaging. Product direction focuses on trust: every answer stays grounded in workspace sources and shows where it came from.
+Debrief was built during OpenAI Build Week using **Codex** (ChatGPT app / IDE) powered by **GPT-5.6** as the primary build partner.
 
-### OpenRouter usage (runtime)
+| Where GPT-5.6 + Codex helped | What I decided |
+|------------------------------|----------------|
+| FastAPI routes, schemas, JWT auth | Wedge: decision recovery, not chat-with-PDF |
+| pgvector retrieval + chunking | Every answer must cite workspace sources |
+| SSE streaming chat + citation format | Persist a Decision Brief, not one-off summaries |
+| Structured Decision Brief JSON + UI | Launch Planning demo story + INR pricing |
+| OpenRouter wiring, Vercel/Railway deploy | Keep judge demo free via OpenRouter free models |
+| README, Devpost packaging, seed scripts | Ship a testable live demo + demo account |
+
+**Product decisions I owned:** the brief schema (decisions / rationale / owners / risks / open questions), citation chips that jump to docs, workspace isolation, and the launch-planning narrative.
+
+### Runtime models (OpenRouter)
+
+Inference for the live demo uses **OpenRouter free models** so judges can test at $0:
 
 - **Embeddings:** `nvidia/llama-nemotron-embed-vl-1b-v2:free` → pgvector (2048-d)
-- **Decision briefs:** free auto-routed chat model (`openrouter/free`) → structured JSON
-- **Streaming chat:** retrieved context + `[Source N]` citations via OpenRouter
+- **Decision briefs:** `openrouter/free` → structured JSON
+- **Streaming chat:** retrieved context + `[Source N]` citations
+
+Codex + GPT-5.6 = **how the product was built**. OpenRouter free models = **how the live demo runs**.
+
+### Judge path (fast)
+
+1. Open [https://debrief-psi.vercel.app](https://debrief-psi.vercel.app)
+2. Sign in: `demo@debrief.app` / `DemoBuildWeek2026!`
+3. Open **Launch Planning** → review Decision Brief → Ask a suggested question
+
+Submission copy: [docs/DEVPOST_SUBMISSION.md](docs/DEVPOST_SUBMISSION.md) · Demo script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) · Checklist: [docs/SUBMISSION_CHECKLIST.md](docs/SUBMISSION_CHECKLIST.md)
 
 ## Launch checklist
 
@@ -164,7 +188,7 @@ Codex (via Cursor) accelerated FastAPI scaffolding, pgvector retrieval, SSE stre
 3. Screenshots → `screenshots/`
 4. Demo video — [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
 5. Devpost copy — [docs/DEVPOST_SUBMISSION.md](docs/DEVPOST_SUBMISSION.md)
-6. Push to GitHub and submit
+6. Push to GitHub and submit on [openai.devpost.com](https://openai.devpost.com/)
 
 ## Project structure
 

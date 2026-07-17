@@ -23,7 +23,8 @@ export default function DocumentUpload({ workspaceId }: DocumentUploadProps) {
     <div className="rounded-xl border border-border bg-surface p-6">
       <h2 className="text-lg font-semibold text-text">Upload source docs</h2>
       <p className="mt-1 text-sm text-text-muted">
-        Notes, transcripts, and plans become Decision Brief inputs. PDF, DOCX, or TXT — max 10MB.
+        Notes, transcripts, and plans become Decision Brief inputs. Text PDF, DOCX, or TXT — max 10MB.
+        Scanned/image-only PDFs need OCR (not supported); export a text PDF or paste into a `.txt` file.
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">

@@ -111,7 +111,10 @@ async def process_document(document_id: uuid.UUID) -> None:
         try:
             segments = parse_document(Path(document.storage_path), document.file_type)
             if not segments:
-                raise ValueError("No text could be extracted from this document")
+                raise ValueError(
+                    "No extractable text (scanned or image-only PDF — OCR is not supported). "
+                    "Export a text PDF or upload as TXT/DOCX."
+                )
 
             chunks = chunk_segments(segments)
             if not chunks:

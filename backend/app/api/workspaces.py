@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, get_owned_workspace
+from app.api.deps import get_accessible_workspace, get_current_user, get_owned_workspace
 from app.database import get_db
 from app.models import User, Workspace
 from app.schemas.workspace import WorkspaceCreate, WorkspaceResponse, WorkspaceUpdate
@@ -30,7 +30,7 @@ async def create_workspace(
 
 
 @router.get("/{workspace_id}", response_model=WorkspaceResponse)
-async def get_workspace(workspace: Workspace = Depends(get_owned_workspace)):
+async def get_workspace(workspace: Workspace = Depends(get_accessible_workspace)):
     return workspace
 
 

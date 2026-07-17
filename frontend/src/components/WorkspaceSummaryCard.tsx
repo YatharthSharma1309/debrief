@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useGenerateSummary, usePersistedSummary } from '../hooks/useSummary'
 import type { Document } from '../services/documents'
 import {
@@ -29,9 +29,16 @@ import {
   type RiskItem,
   type WorkspaceSummary,
 } from '../services/summary'
+import {
+  briefToMarkdown,
+  copyText,
+  downloadText,
+  printBriefAsPdf,
+} from '../utils/exportMarkdown'
 
 interface WorkspaceSummaryCardProps {
   workspaceId: string
+  workspaceName?: string
   hasReadyDocs: boolean
   readyDocCount?: number
   documents?: Document[]
@@ -98,7 +105,7 @@ function SourceChips({
 function statusChipClass(status: string) {
   const s = status.toLowerCase()
   if (s === 'approved' || s === 'done') {
-    return 'rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 dark:text-emerald-200'
+    return 'rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-medium text-brand-700'
   }
   if (s === 'proposed' || s === 'open') {
     return 'rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] font-medium text-sky-800 dark:text-sky-200'
@@ -107,6 +114,19 @@ function statusChipClass(status: string) {
     return 'rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:text-amber-200'
   }
   return 'rounded bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-700'
+}
+
+function formatRiskKind(type?: string | null) {
+  const raw = (type ?? '').trim()
+  if (!raw || raw.toLowerCase() === 'risk') return 'Risk'
+  const label = raw.replace(/_/g, ' ')
+  return `Risk · ${label.charAt(0).toUpperCase()}${label.slice(1)}`
+}
+
+function formatRiskTypeChip(type?: string | null) {
+  const raw = (type ?? '').trim()
+  if (!raw || raw.toLowerCase() === 'risk') return null
+  return raw.replace(/_/g, ' ')
 }
 
 function MetaChips({
@@ -130,7 +150,7 @@ function MetaChips({
     owner ? `Owner: ${owner}` : null,
     confidence ? `Confidence: ${confidence}` : null,
     severity ? `Severity: ${severity}` : null,
-    riskType ? riskType : null,
+    formatRiskTypeChip(riskType),
     due ? `Due: ${due}` : null,
     currency ? currency : null,
   ].filter(Boolean) as string[]
@@ -181,13 +201,13 @@ function ItemRow({
   onJumpToDocument?: (documentId: string) => void
 }) {
   return (
-    <li className="rounded-md border border-border/70 bg-surface px-2.5 py-2">
+    <li className="min-w-0 rounded-md border border-border bg-surface px-2.5 py-2">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           {kind && (
             <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">{kind}</p>
           )}
-          <p className={`text-sm leading-snug text-text ${kind ? 'mt-0.5' : ''}`}>{title}</p>
+          <p className={`break-words text-sm leading-snug text-text ${kind ? 'mt-0.5' : ''}`}>{title}</p>
         </div>
         {onAsk && (
           <button
@@ -201,7 +221,7 @@ function ItemRow({
       </div>
       {subtitle ? (
         <p className="mt-1 text-xs leading-snug text-text-muted">
-          <span className="font-medium text-text">{subtitleLabel}:</span> {subtitle}
+          <span className="font-medium text-text">{`${subtitleLabel}:`}</span> {subtitle}
         </p>
       ) : showEmptySubtitle ? (
         <p className="mt-1 text-[11px] italic text-text-muted/80">No rationale found in sources</p>
@@ -209,6 +229,74 @@ function ItemRow({
       {meta}
       <SourceChips sources={sources} documents={documents} onJumpToDocument={onJumpToDocument} />
     </li>
+  )
+}
+
+function useDesktopOpen(defaultOpen: boolean) {
+  const [open, setOpen] = useState(() => {
+    if (typeof window === 'undefined') return defaultOpen
+    return window.matchMedia('(min-width: 640px)').matches ? true : defaultOpen
+  })
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)')
+    const sync = () => setOpen(mq.matches ? true : defaultOpen)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [defaultOpen])
+
+  return [open, setOpen] as const
+}
+
+/** Collapses on mobile; stays expanded on sm+ so tablet/desktop keep the full brief. */
+function BriefAccordion({
+  title,
+  count,
+  defaultOpen = false,
+  surface = 'muted',
+  children,
+}: {
+  title: string
+  count?: number
+  defaultOpen?: boolean
+  surface?: 'muted' | 'plain'
+  children: ReactNode
+}) {
+  const [open, setOpen] = useDesktopOpen(defaultOpen)
+  const surfaceClass =
+    surface === 'plain'
+      ? 'border-border bg-surface'
+      : 'border-border bg-surface-muted'
+
+  return (
+    <details
+      className={`group rounded-lg border ${surfaceClass}`}
+      open={open}
+      onToggle={(e) => {
+        const el = e.currentTarget
+        if (window.matchMedia('(min-width: 640px)').matches) {
+          el.open = true
+          setOpen(true)
+          return
+        }
+        setOpen(el.open)
+      }}
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 p-3 sm:cursor-default [&::-webkit-details-marker]:hidden">
+        <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+          {title}
+          {count != null && <span className="text-brand-700"> ({count})</span>}
+        </h4>
+        <span
+          className="shrink-0 text-text-muted transition-transform group-open:rotate-180 sm:hidden"
+          aria-hidden
+        >
+          ▾
+        </span>
+      </summary>
+      <div className="border-t border-border px-3 pb-3 pt-2">{children}</div>
+    </details>
   )
 }
 
@@ -225,15 +313,12 @@ function BudgetPanel({
 }) {
   if (!items.length) return null
   return (
-    <div className="rounded-lg border border-border bg-surface p-3">
-      <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-        Budget & pricing <span className="text-brand-700">({items.length})</span>
-      </h4>
-      <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+    <BriefAccordion title="Budget & pricing" count={items.length} surface="plain">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((item) => (
           <div
             key={`${item.label}-${item.amount}`}
-            className="rounded-md border border-border bg-surface-muted/50 px-2.5 py-2"
+            className="rounded-md border border-border bg-surface-muted px-2.5 py-2"
           >
             <div className="flex items-start justify-between gap-2">
               <p className="text-[11px] text-text-muted">{item.label}</p>
@@ -258,7 +343,7 @@ function BudgetPanel({
           </div>
         ))}
       </div>
-    </div>
+    </BriefAccordion>
   )
 }
 
@@ -290,10 +375,12 @@ function BriefStats({
       {cells.map((cell) => (
         <div
           key={cell.label}
-          className="rounded-md border border-border bg-surface-muted/50 px-2 py-1.5 text-center"
+          className="min-w-0 rounded-md border border-border bg-surface-muted px-2 py-1.5 text-center"
         >
           <p className="font-display text-base font-semibold text-brand-700">{cell.value}</p>
-          <p className="text-[9px] uppercase tracking-wide text-text-muted">{cell.label}</p>
+          <p className="truncate text-[9px] uppercase tracking-wide text-text-muted">
+            {cell.label}
+          </p>
         </div>
       ))}
     </div>
@@ -305,22 +392,86 @@ function Section({
   count,
   emptyHint,
   children,
+  defaultOpen = false,
 }: {
   title: string
   count: number
   emptyHint: string
   children: React.ReactNode
+  /** Open by default on mobile (desktop always stays open). */
+  defaultOpen?: boolean
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-muted/40 p-3">
-      <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-        {title} <span className="text-brand-700">({count})</span>
-      </h4>
+    <BriefAccordion title={title} count={count} defaultOpen={defaultOpen}>
       {count === 0 ? (
-        <p className="mt-2 text-xs text-text-muted">{emptyHint}</p>
+        <p className="text-xs text-text-muted">{emptyHint}</p>
       ) : (
-        <ul className="mt-2 space-y-2">{children}</ul>
+        <ul className="space-y-2">{children}</ul>
       )}
+    </BriefAccordion>
+  )
+}
+
+function isConflictRisk(item: RiskItem) {
+  const kind = `${item.type ?? ''} ${item.risk_type ?? ''} ${item.text}`.toLowerCase()
+  return (
+    kind.includes('conflict') ||
+    kind.includes('contradict') ||
+    kind.includes('disagree') ||
+    kind.includes('inconsist')
+  )
+}
+
+function ConflictsSpotlight({
+  risks,
+  dates,
+  onAskQuestion,
+}: {
+  risks: RiskItem[]
+  dates: DateItem[]
+  onAskQuestion?: (question: string) => void
+}) {
+  const conflictRisks = risks.filter(isConflictRisk)
+  const conflictDates = dates.filter((d) => !!d.conflict_with)
+  if (!conflictRisks.length && !conflictDates.length) return null
+
+  return (
+    <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3.5">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">
+        Conflicts & contradictions
+      </p>
+      <ul className="mt-2 space-y-2">
+        {conflictDates.map((d) => (
+          <li key={`date-${d.label}-${d.date}`} className="text-sm text-text">
+            <span className="font-medium">{d.label}</span>
+            {d.date ? ` (${d.date})` : ''} conflicts with{' '}
+            <span className="font-medium">{d.conflict_with}</span>
+            {onAskQuestion && (
+              <button
+                type="button"
+                onClick={() => onAskQuestion(askPromptFromDate(d))}
+                className="ml-2 text-xs font-medium text-brand-700 hover:underline"
+              >
+                Ask
+              </button>
+            )}
+          </li>
+        ))}
+        {conflictRisks.map((r) => (
+          <li key={`risk-${r.text.slice(0, 48)}`} className="text-sm text-text">
+            {r.text}
+            {onAskQuestion && (
+              <button
+                type="button"
+                onClick={() => onAskQuestion(askPromptFromRisk(r))}
+                className="ml-2 text-xs font-medium text-brand-700 hover:underline"
+              >
+                Ask
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -367,6 +518,8 @@ function SummaryContent({
         questions={questions.length}
       />
 
+      <ConflictsSpotlight risks={risks} dates={dates} onAskQuestion={onAskQuestion} />
+
       {(approved > 0 || proposed > 0 || deferred > 0) && (
         <div className="flex flex-wrap gap-1.5 text-[11px]">
           {approved > 0 && (
@@ -381,7 +534,7 @@ function SummaryContent({
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-surface-muted/30 p-4">
+      <div className="rounded-lg border border-border bg-surface-muted p-4">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-700">Overview</p>
         <p className="mt-2 text-sm leading-relaxed text-text">{overviewText}</p>
         {overviewLong && (
@@ -403,15 +556,12 @@ function SummaryContent({
       />
 
       {owners.length > 0 && (
-        <div className="rounded-lg border border-border bg-surface p-3">
-          <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-            Owners <span className="text-brand-700">({owners.length})</span>
-          </h4>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <BriefAccordion title="Owners" count={owners.length} surface="plain">
+          <div className="grid gap-2 sm:grid-cols-2">
             {owners.map((owner) => (
               <div
                 key={owner.name}
-                className="rounded-md border border-border bg-surface-muted/50 px-2.5 py-2 text-xs"
+                className="rounded-md border border-border bg-surface-muted px-2.5 py-2 text-xs"
               >
                 <span className="font-semibold text-text">{owner.name}</span>
                 {owner.owns && owner.owns.length > 0 ? (
@@ -422,11 +572,16 @@ function SummaryContent({
               </div>
             ))}
           </div>
-        </div>
+        </BriefAccordion>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Section title="Key decisions" count={decisions.length} emptyHint="No clear decisions extracted yet.">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Section
+          title="Key decisions"
+          count={decisions.length}
+          emptyHint="No clear decisions extracted yet."
+          defaultOpen
+        >
           {decisions.map((item: DecisionItem) => (
             <ItemRow
               key={item.text}
@@ -506,11 +661,16 @@ function SummaryContent({
           ))}
         </Section>
 
-        <Section title="Risks & conflicts" count={risks.length} emptyHint="No risks or contradictions surfaced.">
+        <Section
+          title="Risks & conflicts"
+          count={risks.length}
+          emptyHint="No risks or contradictions surfaced."
+          defaultOpen
+        >
           {risks.map((item: RiskItem) => (
             <ItemRow
               key={item.text}
-              kind={item.type ?? item.risk_type ? `Risk · ${item.type ?? item.risk_type}` : 'Risk'}
+              kind={formatRiskKind(item.type ?? item.risk_type)}
               title={item.text}
               askLabel="Ask"
               onAsk={onAskQuestion ? () => onAskQuestion(askPromptFromRisk(item)) : undefined}
@@ -560,26 +720,29 @@ function SummaryContent({
           ))}
         </Section>
 
-        <div className="rounded-lg border border-border bg-surface-muted/40 p-3 sm:col-span-2 lg:col-span-1">
-          <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-            Ask next <span className="text-brand-700">({summary.suggested_questions.length})</span>
-          </h4>
-          {summary.suggested_questions.length === 0 ? (
-            <p className="mt-2 text-xs text-text-muted">Generate again after adding docs.</p>
-          ) : (
-            <div className="mt-2 flex flex-col gap-1.5">
-              {summary.suggested_questions.map((question) => (
-                <button
-                  key={question}
-                  type="button"
-                  onClick={() => onAskQuestion?.(question)}
-                  className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-xs text-text hover:border-brand-500 hover:text-brand-700"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="sm:col-span-2 lg:col-span-1">
+          <BriefAccordion
+            title="Ask next"
+            count={summary.suggested_questions.length}
+            defaultOpen
+          >
+            {summary.suggested_questions.length === 0 ? (
+              <p className="text-xs text-text-muted">Generate again after adding docs.</p>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {summary.suggested_questions.map((question) => (
+                  <button
+                    key={question}
+                    type="button"
+                    onClick={() => onAskQuestion?.(question)}
+                    className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-xs text-text hover:border-brand-500 hover:text-brand-700"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            )}
+          </BriefAccordion>
         </div>
       </div>
     </div>
@@ -588,6 +751,7 @@ function SummaryContent({
 
 export default function WorkspaceSummaryCard({
   workspaceId,
+  workspaceName,
   hasReadyDocs,
   readyDocCount = 0,
   documents = [],
@@ -597,6 +761,7 @@ export default function WorkspaceSummaryCard({
   const { data: persisted, isLoading } = usePersistedSummary(workspaceId, hasReadyDocs)
   const generateSummary = useGenerateSummary(workspaceId)
   const summary = generateSummary.data ?? persisted
+  const [exportNote, setExportNote] = useState<string | null>(null)
 
   const isStale = useMemo(() => {
     if (!summary?.generated_at || !documents.length) return false
@@ -605,6 +770,33 @@ export default function WorkspaceSummaryCard({
       (doc) => doc.status === 'ready' && new Date(doc.updated_at).getTime() > generated,
     )
   }, [summary?.generated_at, documents])
+
+  async function handleCopyBrief() {
+    if (!summary) return
+    const md = briefToMarkdown(summary, workspaceName)
+    const ok = await copyText(md)
+    setExportNote(ok ? 'Brief copied as Markdown' : 'Copy failed — try Download instead')
+    window.setTimeout(() => setExportNote(null), 2500)
+  }
+
+  function handleDownloadBrief() {
+    if (!summary) return
+    const slug = (workspaceName ?? 'brief').replace(/[^\w\-]+/g, '-').toLowerCase()
+    downloadText(`decision-brief-${slug}.md`, briefToMarkdown(summary, workspaceName))
+    setExportNote('Downloaded Markdown')
+    window.setTimeout(() => setExportNote(null), 2500)
+  }
+
+  function handleExportPdf() {
+    if (!summary) return
+    const ok = printBriefAsPdf(summary, workspaceName)
+    setExportNote(
+      ok
+        ? 'Print dialog opened — choose Save as PDF'
+        : 'Popup blocked — allow popups or use Export .md',
+    )
+    window.setTimeout(() => setExportNote(null), 3500)
+  }
 
   if (!hasReadyDocs) {
     return (
@@ -620,9 +812,9 @@ export default function WorkspaceSummaryCard({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+    <div className="min-w-0 rounded-xl border border-border bg-surface p-4 shadow-sm sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <h3 className="font-display text-lg font-semibold text-text">Decision Brief</h3>
           <p className="mt-1 text-xs text-text-muted">
             {readyDocCount} ready source{readyDocCount === 1 ? '' : 's'} · status · budget · assumptions · metrics · risks + sources
@@ -641,21 +833,51 @@ export default function WorkspaceSummaryCard({
               Docs changed after this brief — regenerate to refresh decisions and risks.
             </p>
           )}
+          {exportNote && (
+            <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">{exportNote}</p>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={() => generateSummary.mutate()}
-          disabled={generateSummary.isPending}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-        >
-          {generateSummary.isPending
-            ? 'Generating…'
-            : summary
-              ? isStale
-                ? 'Refresh brief'
-                : 'Regenerate brief'
-              : 'Generate brief'}
-        </button>
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+          {summary && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void handleCopyBrief()}
+                className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-text hover:bg-surface-muted sm:px-3 sm:py-2 sm:text-sm"
+              >
+                Copy
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadBrief}
+                className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-text hover:bg-surface-muted sm:px-3 sm:py-2 sm:text-sm"
+              >
+                .md
+              </button>
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-text hover:bg-surface-muted sm:px-3 sm:py-2 sm:text-sm"
+              >
+                PDF
+              </button>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => generateSummary.mutate()}
+            disabled={generateSummary.isPending}
+            className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700 disabled:opacity-60 sm:px-4 sm:py-2 sm:text-sm"
+          >
+            {generateSummary.isPending
+              ? 'Generating…'
+              : summary
+                ? isStale
+                  ? 'Refresh brief'
+                  : 'Regenerate brief'
+                : 'Generate brief'}
+          </button>
+        </div>
       </div>
 
       {isLoading && !summary && (
@@ -671,7 +893,7 @@ export default function WorkspaceSummaryCard({
       )}
 
       {!summary && !isLoading && !generateSummary.isPending && (
-        <div className="mt-4 rounded-lg border border-dashed border-border bg-surface-muted/30 p-4">
+        <div className="mt-4 rounded-lg border border-dashed border-border bg-surface-muted p-4">
           <p className="text-sm text-text">
             {readyDocCount} document{readyDocCount === 1 ? '' : 's'} ready. Generate a Decision Brief to
             recover approved vs proposed decisions, ₹ budget lines, assumptions, metrics, and risks.

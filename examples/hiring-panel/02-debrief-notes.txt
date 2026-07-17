@@ -1,0 +1,25 @@
+# Candidate debrief — Meera Iyer
+
+Date: July 12, 2026
+Panel: Anika, Vikram, Sofia (cross-func)
+
+Signals:
+- Systems design: strong (caching, idempotency, failure modes)
+- Coding: solid; missed one concurrency edge case, recovered when prompted
+- Collaboration: clear ownership stories from prior Payments team
+
+Vikram proposed L5 at ₹39L. Anika prefers L4 at ₹34L with 6-month review to L5.
+
+Decision (deferred):
+Level/comp not finalized. Hold offer letter until Kabir reviews the ₹39L case on July 18.
+
+Conflict:
+Recruiter calendar note says "verbal L5 yes" — panel only deferred; do not treat as approved.
+
+Risk:
+Competing offer expires July 20. Slow loop may lose the candidate.
+
+Action · open:
+- Anika: write 1-page level justification by July 16
+- Rohan: confirm competing deadline in writing
+- Kabir: yes/no on ₹39L by July 18

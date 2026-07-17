@@ -3,16 +3,17 @@
 @theme {
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-display: 'Fraunces', Georgia, serif;
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
+  --color-brand-50: #f0f4f2;
+  --color-brand-100: #dce8e1;
   --color-brand-500: #059669;
   --color-brand-600: #047857;
   --color-brand-700: #065f46;
+  /* Neutral light canvas — avoid mint wash behind green status chips */
   --color-surface: #ffffff;
-  --color-surface-muted: #f4f7f5;
-  --color-border: #d8e2dc;
-  --color-text: #14211b;
-  --color-text-muted: #5b6b63;
+  --color-surface-muted: #f3f4f5;
+  --color-border: #d4d8db;
+  --color-text: #121417;
+  --color-text-muted: #5c6570;
 }
 
 .dark {
@@ -28,16 +29,45 @@
   --color-text-muted: #9aafa3;
 }
 
+html {
+  overflow-x: hidden;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  max-width: 100%;
   font-family: var(--font-sans);
-  background:
-    radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in oklab, var(--color-brand-100) 55%, transparent), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 0%, color-mix(in oklab, var(--color-brand-50) 80%, transparent), transparent),
-    var(--color-surface-muted);
+  background: var(--color-surface-muted);
   color: var(--color-text);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body {
+  background:
+    radial-gradient(
+      ellipse 70% 45% at 8% -8%,
+      color-mix(in oklab, var(--color-brand-100) 40%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 50% 35% at 100% 0%,
+      color-mix(in oklab, var(--color-brand-50) 55%, transparent),
+      transparent 50%
+    ),
+    var(--color-surface-muted);
 }
 
 ::selection {
@@ -97,11 +127,20 @@ body {
 .home-brief-sheen {
   background: linear-gradient(
     105deg,
+    transparent 42%,
+    color-mix(in oklab, var(--color-border) 55%, transparent) 50%,
+    transparent 58%
+  );
+  animation: home-brief-sheen 1.4s ease-out 0.35s both;
+}
+
+.dark .home-brief-sheen {
+  background: linear-gradient(
+    105deg,
     transparent 40%,
     color-mix(in oklab, var(--color-brand-100) 45%, transparent) 50%,
     transparent 60%
   );
-  animation: home-brief-sheen 1.4s ease-out 0.35s both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -110,4 +149,30 @@ body {
   .home-brief-sheen {
     animation: none;
   }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--color-brand-600) 45%, var(--color-border))
+    color-mix(in oklab, var(--color-surface-muted) 80%, transparent);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, var(--color-brand-600) 40%, var(--color-border));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklab, var(--color-brand-600) 65%, var(--color-border));
 }

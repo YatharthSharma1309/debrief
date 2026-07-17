@@ -1,0 +1,30 @@
+# Vendor Renewal — CloudWatch tools contract
+
+Contract: Acme Observability (APM + logs)
+Renewal window: August 1–15, 2026
+Currency: Indian Rupees (₹ / INR)
+Participants: Priya (Procurement), Dev (Eng), Neha (Finance)
+
+Current term:
+- Plan: Team — ₹4.2L / year
+- Seats: 25
+- Ends: September 30, 2026
+
+Vendor proposal (July 8):
+- Renew at ₹5.1L / year (+21%) for same 25 seats
+- Add SSO at no charge if multi-year signed by Aug 20
+- Annual price lock for 2 years if paid upfront
+
+Decision (proposed — not approved):
+Eng wants to keep Acme for continuity. Procurement wants a competitive quote from Beacon Telemetry at ₹3.9L before any approval.
+
+Assumptions:
+- Migration off Acme would take ~6 engineering weeks.
+- Finance will not approve >10% uplift without a written alternative quote.
+
+Owner:
+Priya owns the Beacon RFP; Dev owns migration-risk writeup; Neha owns budget line.
+
+Open questions:
+- Can Acme match Beacon within 10% without a 2-year lock?
+- Is SSO required this fiscal year?

@@ -22,3 +22,6 @@ class User(Base):
 
     workspaces: Mapped[list["Workspace"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
     chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    memberships: Mapped[list["WorkspaceMember"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )

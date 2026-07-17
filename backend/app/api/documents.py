@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_owned_workspace
+from app.api.deps import get_accessible_workspace
 from app.database import get_db
 from app.models import Workspace
 from app.schemas.document import DocumentResponse
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/workspaces/{workspace_id}/documents")
 
 @router.get("", response_model=list[DocumentResponse])
 async def list_documents(
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
 ):
     return await document_service.list_documents(db, workspace)
@@ -23,7 +23,7 @@ async def list_documents(
 @router.post("", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 async def upload_document(
     background_tasks: BackgroundTasks,
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
     file: UploadFile = File(...),
 ):
@@ -64,7 +64,7 @@ async def upload_document(
 @router.get("/{document_id}", response_model=DocumentResponse)
 async def get_document(
     document_id: uuid.UUID,
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
 ):
     document = await document_service.get_document(db, workspace, document_id)
@@ -76,7 +76,7 @@ async def get_document(
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_document(
     document_id: uuid.UUID,
-    workspace: Workspace = Depends(get_owned_workspace),
+    workspace: Workspace = Depends(get_accessible_workspace),
     db: AsyncSession = Depends(get_db),
 ):
     document = await document_service.get_document(db, workspace, document_id)

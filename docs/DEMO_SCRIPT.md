@@ -46,11 +46,27 @@ Then ask:
 
 Point out streaming answers, source citations, excerpts, and relevance scores.
 
-## 2:40-3:00 - Technical Close
+## 2:40-3:00 - Technical Close (Codex + GPT-5.6 required)
 
-> Under the hood, Debrief uses React, FastAPI, PostgreSQL with pgvector, and OpenRouter free models for embeddings, decision briefs, and cited streaming answers. Codex helped build the backend, retrieval layer, SSE streaming, structured brief UI, and deployment setup during Build Week.
+Say clearly (judges require voiceover on both tools):
+
+> Under the hood, Debrief uses React, FastAPI, PostgreSQL with pgvector, and OpenRouter free models for embeddings, decision briefs, and cited streaming answers.
+>
+> I built this during OpenAI Build Week with **Codex powered by GPT-5.6** — using it to scaffold the FastAPI RAG backend, design the Decision Brief schema, wire SSE streaming and citations, and ship the UI plus deployment.
+>
+> Codex and GPT-5.6 were my build partners. OpenRouter free models keep the live demo free for judges to test.
 
 End with the GitHub repo and live URL.
+
+## Required voiceover checklist
+
+Your narration must cover all three:
+
+1. **What you built** — Decision Briefs from scattered docs
+2. **How you used Codex** — specific: backend, retrieval, SSE, brief UI, deploy
+3. **How you used GPT-5.6** — Codex runs on GPT-5.6; it drove architecture and implementation during Build Week
+
+A silent screencast or music-only video will not meet Build Week rules.
 
 ## Recording Tips
 

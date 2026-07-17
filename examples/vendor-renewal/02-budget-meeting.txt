@@ -1,0 +1,24 @@
+# Budget meeting transcript — Vendor renewal
+
+Date: July 11, 2026
+Attendees: Priya, Dev, Neha, Kabir (VP Eng)
+
+Neha: Soft cap for tooling renewals is ₹4.6L this year. Anything above needs Kabir sign-off.
+
+Dev: Beacon is cheaper on paper but we lose distributed tracing depth. Risk is on-call noise for two quarters.
+
+Kabir: Decision — do not renew Acme at ₹5.1L. Get Beacon written quote by July 25. If Acme drops to ≤₹4.6L with annual seat, we can renew one year only. No multi-year without board finance review.
+
+Decision (approved):
+Cap renewal spend at ₹4.6L. Prefer one-year term. Competitive quote required before signature.
+
+Conflict:
+Vendor email from Acme still lists "verbal yes for ₹5.1L" — that was never approved; Kabir contradicted it in this meeting.
+
+Action items:
+- Priya: Beacon quote due July 25
+- Dev: 1-pager on migration risk due July 22
+- Neha: Reserve ₹4.6L line item in Q2 forecast
+
+Risk:
+If Beacon cannot deliver SSO before Oct, support contracts may leave a gap for enterprise demos.

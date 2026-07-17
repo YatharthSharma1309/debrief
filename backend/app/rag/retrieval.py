@@ -11,3 +11,5 @@ class RetrievedChunk:
     page_number: int | None
     content: str
     score: float
+    workspace_id: UUID | None = None
+    workspace_name: str | None = None

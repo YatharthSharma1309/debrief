@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ProtectedRoute from './components/ProtectedRoute'
+import ScrollToHash from './components/ScrollToHash'
 import AuthRoute from './pages/AuthRoute'
 import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
@@ -42,6 +43,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <ScrollToHash />
         <AppRoutes />
       </BrowserRouter>
     </QueryClientProvider>

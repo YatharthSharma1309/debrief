@@ -30,3 +30,6 @@ class Workspace(Base):
     chat_sessions: Mapped[list["ChatSession"]] = relationship(
         back_populates="workspace", cascade="all, delete-orphan"
     )
+    members: Mapped[list["WorkspaceMember"]] = relationship(
+        back_populates="workspace", cascade="all, delete-orphan"
+    )

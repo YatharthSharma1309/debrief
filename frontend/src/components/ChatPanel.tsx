@@ -18,12 +18,13 @@ interface ChatPanelProps {
   hideSuggestedChips?: boolean
 }
 
-function formatSessionLabel(title: string | null, updatedAt: string) {
-  const name = title?.trim() || 'New conversation'
+function formatSessionLabel(title: string | null, updatedAt: string, compact = false) {
+  const name = title?.trim() || 'New chat'
   const date = new Date(updatedAt).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
   })
+  if (compact) return name.length > 28 ? `${name.slice(0, 28)}…` : name
   return `${name} · ${date}`
 }
 
@@ -60,7 +61,7 @@ export default function ChatPanel({
   }, [sessions, activeSessionId])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages, streamingContent])
 
   async function handleSuggestedQuestion(question: string) {
@@ -88,25 +89,25 @@ export default function ChatPanel({
   }
 
   return (
-    <div className="flex min-h-[640px] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm lg:min-h-[720px]">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
-        <div>
+    <div className="flex w-full min-w-0 flex-col rounded-xl border border-border bg-surface shadow-sm">
+      <div className="flex shrink-0 flex-col gap-2 border-b border-border px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-4">
+        <div className="min-w-0">
           <h2 className="text-sm font-semibold text-text">Ask about decisions</h2>
           <p className="text-xs text-text-muted">
-            Streaming answers with source excerpts and relevance %
-            {sessions && sessions.length > 0 ? ` · ${sessions.length} conversation${sessions.length === 1 ? '' : 's'}` : ''}
+            Cited answers from your docs
+            {sessions && sessions.length > 0 ? ` · ${sessions.length} chat${sessions.length === 1 ? '' : 's'}` : ''}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-stretch gap-2 sm:items-center">
           {sessions && sessions.length > 0 && (
             <select
               value={activeSessionId ?? ''}
               onChange={(e) => setActiveSessionId(e.target.value)}
-              className="max-w-[180px] rounded-lg border border-border px-2 py-1.5 text-xs text-text outline-none"
+              className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs text-text outline-none sm:max-w-[200px] sm:flex-none"
             >
               {sessions.map((session) => (
                 <option key={session.id} value={session.id}>
-                  {formatSessionLabel(session.title, session.updated_at)}
+                  {formatSessionLabel(session.title, session.updated_at, true)}
                 </option>
               ))}
             </select>
@@ -115,14 +116,15 @@ export default function ChatPanel({
             type="button"
             onClick={handleNewChat}
             disabled={createSession.isPending}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text hover:bg-surface-muted disabled:opacity-60"
+            className="shrink-0 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text hover:bg-surface-muted disabled:opacity-60 sm:px-3"
+            title="New chat"
           >
-            New chat
+            <span className="text-xs">New chat</span>
           </button>
         </div>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto bg-surface-muted/50 p-4">
+      <div className="space-y-3 bg-surface-muted p-3 sm:p-4">
         {sessionsLoading && <LoadingSpinner label="Loading chat…" />}
 
         {!sessionsLoading && !activeSessionId && (
